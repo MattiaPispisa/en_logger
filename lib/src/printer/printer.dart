@@ -64,12 +64,17 @@ class PrinterHandler extends EnLoggerHandler {
   @override
   void write(
     String message, {
+    required Severity severity,
     String? prefix,
-    Severity? severity,
     StackTrace? stackTrace,
     List<EnLoggerData>? data,
   }) {
     return _prettyPrint(
-        message, prefix, severity ?? Severity.informational, stackTrace, data);
+      message,
+      prefix,
+      severity,
+      stackTrace,
+      data,
+    );
   }
 }

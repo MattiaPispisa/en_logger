@@ -40,5 +40,3 @@ class PrefixFormat {
     return '$startFormat${style.applyOn(prefix)}$endFormat';
   }
 }
-
-extension _PrefixStyleExt on PrefixStyle {}

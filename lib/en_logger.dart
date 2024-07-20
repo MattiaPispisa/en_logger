@@ -1,4 +1,4 @@
-/// A Very Good Project created by Very Good CLI.
+/// A Very Good Logger
 library en_logger;
 
 export 'src/en_logger.dart';

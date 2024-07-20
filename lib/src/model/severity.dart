@@ -47,4 +47,7 @@ enum Severity {
         return 70;
     }
   }
+
+  /// error or more critical
+  bool get atLeastError => level <= 30;
 }

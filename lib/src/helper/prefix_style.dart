@@ -70,7 +70,8 @@ extension _StringExt on String {
           isPreviousUnderscore = true;
         }
       } else if (currentChar == currentChar.toUpperCase()) {
-        // Add an underscore before uppercase letters unless it's the first character
+        // Add an underscore before uppercase letters
+        // unless it's the first character
         if (i != 0 && !isPreviousUnderscore) {
           result.write('_');
         }

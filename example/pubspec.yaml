@@ -1,0 +1,12 @@
+name: example
+description: A Very Good Project created by Very Good CLI.
+version: 0.1.0+1
+publish_to: none
+
+environment:
+  sdk: ">=2.17.0 <3.0.0"
+
+dependencies:
+  en_logger:
+    path: ../
+  sentry: ^8.4.0

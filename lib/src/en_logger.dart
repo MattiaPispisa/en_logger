@@ -278,7 +278,7 @@ class _EnLogDataDto {
   });
 
   final Object message;
-  final Severity? severity;
+  final Severity severity;
   final String? prefix;
   final StackTrace? stackTrace;
   final List<EnLoggerData>? data;

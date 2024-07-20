@@ -17,8 +17,8 @@ abstract class EnLoggerHandler {
   /// [data] list of data relating to the message
   void write(
     String message, {
+    required Severity severity,
     String? prefix,
-    Severity? severity,
     StackTrace? stackTrace,
     List<EnLoggerData>? data,
   });

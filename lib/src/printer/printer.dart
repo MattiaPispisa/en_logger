@@ -41,7 +41,7 @@ class PrinterHandler extends EnLoggerHandler {
     if (prefixFormat != null && prefix != null) {
       prettyMessage = '${prefixFormat!.format(prefix)} $prettyMessage';
     }
-    prettyMessage = '${_configuration.getColor(severity)}$prettyMessage';
+    prettyMessage = '${_configuration.getColor(severity).schema}$prettyMessage';
 
     if (writeIfContains != null &&
         !writeIfContains!.any((element) => prettyMessage.contains(element))) {

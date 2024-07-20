@@ -16,6 +16,7 @@ void main() {
       test(
         'should manage handlers correctly',
         () {
+          registerFallbackValue(Severity.debug);
           final mockHandler = _MockHandler();
           final logger = EnLogger()
             ..addHandler(mockHandler)
@@ -26,7 +27,7 @@ void main() {
               'hy',
               prefix: any(named: 'prefix'),
               stackTrace: any(named: 'stackTrace'),
-              severity: any(named: 'severity'),
+              severity: Severity.debug,
               data: any(named: 'data'),
             ),
           ).called(1);
@@ -40,7 +41,7 @@ void main() {
               'error',
               prefix: any(named: 'prefix'),
               stackTrace: any(named: 'stackTrace'),
-              severity: any(named: 'severity'),
+              severity: Severity.critical,
               data: any(named: 'data'),
             ),
           );

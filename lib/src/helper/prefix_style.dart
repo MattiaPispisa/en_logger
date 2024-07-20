@@ -6,7 +6,7 @@ enum PrefixStyle {
   /// snake_case
   snakeCase,
 
-  /// pascalCase
+  /// PascalCase
   pascalCase;
 
   /// apply style on [text]

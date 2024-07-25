@@ -1,5 +1,8 @@
 # En Logger
 
+[![ci][ci_badge]][ci_link]
+[![License: MIT][license_badge]][license_link]
+
 `EnLogger` allows you to write log messages according to your needs without restricting you to
 writing messages to the debug console or other systems. It maintains a list of `EnLoggerHandlers`
 internally. You can implement your own EnLoggerHandler based on your specific requirements. Each
@@ -95,3 +98,7 @@ You can also create custom colors.
 ```dart
 PrinterColor.custom(schema: '\x1B[31m')
 ```
+[ci_badge]: https://github.com/VeryGoodOpenSource/very_good_workflows/actions/workflows/ci.yml/badge.svg
+[ci_link]: https://github.com/MattiaPispisa/en_logger/actions
+[license_badge]: https://img.shields.io/badge/license-MIT-blue.svg
+[license_link]: https://opensource.org/licenses/MIT

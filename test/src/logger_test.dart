@@ -79,7 +79,7 @@ void main() {
             ..removeHandlers([mockHandler])
             ..debug('no write');
           verifyNever(
-                () => mockHandler.write(
+            () => mockHandler.write(
               'no write',
               prefix: any(named: 'prefix'),
               stackTrace: any(named: 'stackTrace'),

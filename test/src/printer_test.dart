@@ -35,9 +35,12 @@ void main() {
       test(
         'should create correctly',
         () {
-          expect(() {
-            PrinterHandler();
-          }, returnsNormally);
+          expect(
+            () {
+              PrinterHandler();
+            },
+            returnsNormally,
+          );
         },
       );
 

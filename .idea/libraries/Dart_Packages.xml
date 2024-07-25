@@ -13,7 +13,7 @@
         <entry key="_macros">
           <value>
             <list>
-              <option value="/usr/local/Cellar/dart-sdk/3.4.4/libexec/pkg/_macros/lib" />
+              <option value="$USER_HOME$/fvm/versions/stable/bin/cache/dart-sdk/pkg/_macros/lib" />
             </list>
           </value>
         </entry>
@@ -850,7 +850,7 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/xml-6.5.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/yaml-3.1.2/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/yaml_edit-2.2.0/lib" />
-      <root url="file:///usr/local/Cellar/dart-sdk/3.4.4/libexec/pkg/_macros/lib" />
+      <root url="file://$USER_HOME$/fvm/versions/stable/bin/cache/dart-sdk/pkg/_macros/lib" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

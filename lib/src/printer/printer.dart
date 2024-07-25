@@ -6,6 +6,7 @@ import 'package:en_logger/en_logger.dart';
 export './color.dart';
 export './configuration.dart';
 
+/// PrinterHandler log callback
 typedef DeveloperLogCallback = void Function(
   String message, {
   DateTime? time,

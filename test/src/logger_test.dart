@@ -179,7 +179,7 @@ void main() {
               description: 'freezed serialized data',
             ),
           ];
-          final logger = EnLogger()
+          EnLogger()
             ..addHandler(mockHandler)
             ..debug(
               'debug',

@@ -8,3 +8,4 @@ pubspec.lock
 
 # FVM Version Cache
 .fvm/
+/coverage

@@ -13,7 +13,7 @@
         <entry key="_macros">
           <value>
             <list>
-              <option value="$USER_HOME$/fvm/versions/stable/bin/cache/dart-sdk/pkg/_macros/lib" />
+              <option value="/usr/local/Cellar/dart-sdk/3.4.4/libexec/pkg/_macros/lib" />
             </list>
           </value>
         </entry>
@@ -263,6 +263,7 @@
         <entry key="http">
           <value>
             <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/http-1.2.2/lib" />
               <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/http-0.13.6/lib" />
             </list>
           </value>
@@ -458,6 +459,13 @@
             </list>
           </value>
         </entry>
+        <entry key="sentry">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/sentry-8.4.0/lib" />
+            </list>
+          </value>
+        </entry>
         <entry key="shelf">
           <value>
             <list>
@@ -513,6 +521,13 @@
           <value>
             <list>
               <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/source_span-1.10.0/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="sprintf">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/sprintf-7.0.0/lib" />
             </list>
           </value>
         </entry>
@@ -614,6 +629,7 @@
         <entry key="uuid">
           <value>
             <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/uuid-4.4.2/lib" />
               <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/uuid-3.0.7/lib" />
             </list>
           </value>
@@ -621,7 +637,7 @@
         <entry key="very_good_analysis">
           <value>
             <list>
-              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/very_good_analysis-5.1.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/very_good_analysis-6.0.0/lib" />
             </list>
           </value>
         </entry>
@@ -757,6 +773,7 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/graphs-2.3.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/html-0.15.4/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/http-0.13.6/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/http-1.2.2/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/http_multi_server-3.2.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/http_parser-4.0.2/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/http_parser-4.1.0/lib" />
@@ -786,6 +803,7 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/process-5.0.2/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/pub_semver-2.1.4/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/pubspec_parse-1.2.3/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/sentry-8.4.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/shelf-1.4.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/shelf-1.4.2/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/shelf_packages_handler-3.0.2/lib" />
@@ -796,6 +814,7 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/source_map_stack_trace-2.1.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/source_maps-0.10.12/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/source_span-1.10.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/sprintf-7.0.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/sse-4.1.5/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/stack_trace-1.11.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/standard_message_codec-0.0.1+4/lib" />
@@ -814,7 +833,8 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/unified_analytics-5.8.8+1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/usage-4.1.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/uuid-3.0.7/lib" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/very_good_analysis-5.1.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/uuid-4.4.2/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/very_good_analysis-6.0.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/vm_service-14.2.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/vm_service-14.2.4/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/vm_service_interface-1.0.1/lib" />
@@ -830,7 +850,7 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/xml-6.5.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/yaml-3.1.2/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/yaml_edit-2.2.0/lib" />
-      <root url="file://$USER_HOME$/fvm/versions/stable/bin/cache/dart-sdk/pkg/_macros/lib" />
+      <root url="file:///usr/local/Cellar/dart-sdk/3.4.4/libexec/pkg/_macros/lib" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

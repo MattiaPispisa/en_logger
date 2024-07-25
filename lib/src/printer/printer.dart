@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer' as developer;
 
 import 'package:en_logger/en_logger.dart';
@@ -5,19 +6,61 @@ import 'package:en_logger/en_logger.dart';
 export './color.dart';
 export './configuration.dart';
 
+typedef DeveloperLogCallback = void Function(
+  String message, {
+  DateTime? time,
+  int? sequenceNumber,
+  int level,
+  String name,
+  Zone? zone,
+  Object? error,
+  StackTrace? stackTrace,
+});
+
 /// concrete implementation of [EnLoggerHandler]
 ///
-/// write message on developer console
+/// write message on developer console ([developer.log])
 class PrinterHandler extends EnLoggerHandler {
   /// [writeIfContains] in OR
   /// [writeIfNotContains] in AND
-  PrinterHandler({
-    super.prefixFormat,
+  factory PrinterHandler({
+    PrefixFormat? prefixFormat,
+    List<String>? writeIfContains,
+    List<String>? writeIfNotContains,
+  }) {
+    return PrinterHandler._(
+      prefixFormat: prefixFormat,
+      writeIfContains: writeIfContains,
+      writeIfNotContains: writeIfNotContains,
+      logCallback: developer.log,
+    );
+  }
+
+  /// custom [logCallback]
+  factory PrinterHandler.custom({
+    required DeveloperLogCallback logCallback,
+    PrefixFormat? prefixFormat,
+    List<String>? writeIfContains,
+    List<String>? writeIfNotContains,
+  }) {
+    return PrinterHandler._(
+      prefixFormat: prefixFormat,
+      writeIfContains: writeIfContains,
+      writeIfNotContains: writeIfNotContains,
+      logCallback: logCallback,
+    );
+  }
+
+  PrinterHandler._({
+    required DeveloperLogCallback logCallback,
     this.writeIfContains,
     this.writeIfNotContains,
-  });
+    super.prefixFormat,
+  }) : _logCallback = logCallback;
 
   final PrinterColorConfiguration _configuration = PrinterColorConfiguration();
+
+  final DeveloperLogCallback _logCallback;
 
   /// write text only if contains one of the [writeIfContains]
   final List<String>? writeIfContains;
@@ -53,7 +96,7 @@ class PrinterHandler extends EnLoggerHandler {
       return;
     }
 
-    developer.log(
+    _logCallback(
       prettyMessage,
       time: DateTime.now().toUtc(),
       level: severity.level,

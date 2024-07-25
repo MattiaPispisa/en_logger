@@ -1,3 +1,9 @@
+## [1.1.1] - 2024-07-25
+
+### Fix
+
+- chore: Documented new public api
+
 ## [1.1.0] - 2024-07-25
 
 ### Added

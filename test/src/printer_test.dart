@@ -9,7 +9,7 @@ void main() {
     'PrinterHandler',
     () {
       var message = '';
-      late EnLoggerHandler handler;
+      late PrinterHandler handler;
 
       setUp(() {
         handler = PrinterHandler.custom(
@@ -33,6 +33,15 @@ void main() {
       });
 
       test(
+        'should create correctly',
+        () {
+          expect(() {
+            PrinterHandler();
+          }, returnsNormally);
+        },
+      );
+
+      test(
         'should write message correctly',
         () {
           handler.write('error', severity: Severity.error);
@@ -52,6 +61,89 @@ void main() {
           );
         },
       );
+
+      test('should configure colors', () {
+        handler
+          ..configure({
+            Severity.informational: const PrinterColor.magenta(),
+            Severity.debug: const PrinterColor.custom(schema: '\x1B[38m'),
+          })
+          ..write(
+            'informational',
+            severity: Severity.informational,
+          );
+
+        expect(
+          message,
+          '${const PrinterColor.magenta().schema}informational\x1B[0m',
+        );
+
+        handler.write('debug', severity: Severity.debug);
+        expect(
+          message,
+          '\x1B[38mdebug\x1B[0m',
+        );
+      });
+
+      test('should filter messages', () {
+        handler = PrinterHandler.custom(
+          logCallback: (
+            String content, {
+            DateTime? time,
+            int? sequenceNumber,
+            int level = 0,
+            String name = '',
+            Zone? zone,
+            Object? error,
+            StackTrace? stackTrace,
+          }) {
+            message = content;
+          },
+          writeIfContains: ['must be present', 'can be present'],
+          writeIfNotContains: ['hide', 'remove'],
+        )..write('must be present some text', severity: Severity.debug);
+
+        expect(
+          message.contains('must be present some text'),
+          true,
+        );
+
+        handler.write(
+          'must be present the remove word',
+          severity: Severity.debug,
+        );
+        expect(
+          message.contains('must be present the remove word'),
+          false,
+        );
+
+        handler.write(
+          'must be present the hide word',
+          severity: Severity.debug,
+        );
+        expect(
+          message.contains('must be present the hide word'),
+          false,
+        );
+
+        handler.write(
+          'can be present this text',
+          severity: Severity.debug,
+        );
+        expect(
+          message.contains('can be present this text'),
+          true,
+        );
+
+        handler.write(
+          'some words',
+          severity: Severity.debug,
+        );
+        expect(
+          message.contains('some words'),
+          false,
+        );
+      });
     },
   );
 }

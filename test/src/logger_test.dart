@@ -60,6 +60,33 @@ void main() {
               data: any(named: 'data'),
             ),
           );
+
+          logger
+            ..addHandlers([mockHandler])
+            ..debug('jo');
+
+          verify(
+            () => mockHandler.write(
+              'jo',
+              prefix: any(named: 'prefix'),
+              stackTrace: any(named: 'stackTrace'),
+              severity: Severity.debug,
+              data: any(named: 'data'),
+            ),
+          ).called(1);
+
+          logger
+            ..removeHandlers([mockHandler])
+            ..debug('no write');
+          verifyNever(
+                () => mockHandler.write(
+              'no write',
+              prefix: any(named: 'prefix'),
+              stackTrace: any(named: 'stackTrace'),
+              severity: Severity.debug,
+              data: any(named: 'data'),
+            ),
+          );
         },
       );
 
@@ -70,27 +97,16 @@ void main() {
           final logger = EnLogger()
             ..addHandler(mockHandler)
             ..debug(
-              'hy',
+              'debug',
               prefix: 'prefix',
               data: [],
             );
-
           verify(
             () => mockHandler.write(
-              'hy',
+              'debug',
               prefix: 'prefix',
-              stackTrace: any(named: 'stackTrace'),
               severity: Severity.debug,
               data: [],
-            ),
-          ).called(1);
-
-          logger.error('error');
-          verify(
-            () => mockHandler.write(
-              'error',
-              stackTrace: any(named: 'stackTrace'),
-              severity: Severity.error,
             ),
           ).called(1);
 
@@ -98,8 +114,31 @@ void main() {
           verify(
             () => mockHandler.write(
               'info',
-              stackTrace: any(named: 'stackTrace'),
               severity: Severity.informational,
+            ),
+          ).called(1);
+
+          logger.normal('notice');
+          verify(
+            () => mockHandler.write(
+              'notice',
+              severity: Severity.notice,
+            ),
+          ).called(1);
+
+          logger.warning('warning');
+          verify(
+            () => mockHandler.write(
+              'warning',
+              severity: Severity.warning,
+            ),
+          ).called(1);
+
+          logger.error('error');
+          verify(
+            () => mockHandler.write(
+              'error',
+              severity: Severity.error,
             ),
           ).called(1);
 
@@ -107,15 +146,58 @@ void main() {
           verify(
             () => mockHandler.write(
               'critical',
-              stackTrace: any(named: 'stackTrace'),
               severity: Severity.critical,
+            ),
+          ).called(1);
+
+          logger.alert('alert');
+          verify(
+            () => mockHandler.write(
+              'alert',
+              severity: Severity.alert,
+            ),
+          ).called(1);
+
+          logger.emergency('emergency');
+          verify(
+            () => mockHandler.write(
+              'emergency',
+              severity: Severity.emergency,
             ),
           ).called(1);
         },
       );
 
       test(
-        'should handle instances correctly',
+        'should handle EnLoggerData',
+        () {
+          final mockHandler = _MockHandler();
+          final data = [
+            const EnLoggerData(
+              name: 'file.txt',
+              content: '{count:3}',
+              description: 'freezed serialized data',
+            ),
+          ];
+          final logger = EnLogger()
+            ..addHandler(mockHandler)
+            ..debug(
+              'debug',
+              data: data,
+            );
+
+          verify(
+            () => mockHandler.write(
+              'debug',
+              severity: Severity.debug,
+              data: data,
+            ),
+          ).called(1);
+        },
+      );
+
+      test(
+        'should handle EnLogger instances correctly',
         () {
           final mockHandler = _MockHandler();
           final logger = EnLogger()..addHandler(mockHandler);

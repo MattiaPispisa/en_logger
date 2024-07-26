@@ -2,6 +2,7 @@
 
 [![ci][ci_badge]][ci_link]
 [![License: MIT][license_badge]][license_link]
+[![coverage][coverage_badge]][coverage_badge]
 
 `EnLogger` allows you to write log messages according to your needs without restricting you to
 writing messages to the debug console or other systems. It maintains a list of `EnLoggerHandlers`
@@ -102,3 +103,4 @@ PrinterColor.custom(schema: '\x1B[31m')
 [ci_link]: https://github.com/MattiaPispisa/en_logger/actions
 [license_badge]: https://img.shields.io/badge/license-MIT-blue.svg
 [license_link]: https://opensource.org/licenses/MIT
+[coverage_badge]: https://img.shields.io/badge/coverage-100%25-green

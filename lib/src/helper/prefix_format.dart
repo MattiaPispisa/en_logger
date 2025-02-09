@@ -9,6 +9,12 @@ class PrefixFormat {
     this.style = PrefixStyle.uppercaseSnakeCase,
   });
 
+  /// constructor with snake case and square bracket format
+  const PrefixFormat.snakeSquare()
+      : startFormat = '[',
+        endFormat = ']',
+        style = PrefixStyle.uppercaseSnakeCase;
+
   /// leading string that enclose the prefix
   final String? startFormat;
 

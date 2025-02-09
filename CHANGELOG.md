@@ -1,3 +1,15 @@
+## [1.2.0] - 2025-02-09
+
+### Added
+
+- new `PrefixFormat` constructor: `PrefixFormat-snakeSquare`
+
+### Changed
+
+- Added default prefixFormat on `PrinterHandler`
+- chore: Improved example, readme
+- chore: More tests
+
 ## [1.1.1] - 2024-07-25
 
 ### Fix

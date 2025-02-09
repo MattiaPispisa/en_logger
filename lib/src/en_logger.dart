@@ -51,8 +51,9 @@ class EnLogger {
     _handlers.clear();
   }
 
-  /// create from this a new instance with:
-  /// - a preconfigured [prefix]
+  /// create from `this` a new instance with:
+  ///
+  /// - a pre-configured [prefix]
   /// - current [EnLoggerHandler] configured
   EnLogger getConfiguredInstance({String? prefix}) {
     return _EnLoggerInstance(

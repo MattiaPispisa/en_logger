@@ -9,42 +9,48 @@ void main(List<String> args) async {
 
   // default printer configured
   final printer = PrinterHandler()
-    ..configure({Severity.notice: PrinterColor.green()});
+    ..configure({
+      Severity.notice: const PrinterColor.green(),
+    });
 
   // an enLogger with a default prefix format
   final logger = EnLogger(
-      defaultPrefixFormat: PrefixFormat(
-    startFormat: '[',
-    endFormat: ']',
-    style: PrefixStyle.uppercaseSnakeCase,
-  ))
+    defaultPrefixFormat: const PrefixFormat(
+      startFormat: '[',
+      endFormat: ']',
+    ),
+  )
     ..addHandlers([
       sentry,
       printer,
-    ]);
+    ])
 
-  // debug log
-  logger.debug('a debug message');
+    // debug log
+    ..debug('a debug message')
 
-  // error with data
-  logger.error(
-    "error",
-    data: [
-      EnLoggerData(
-        name: "response",
-        content: jsonEncode("BE data"),
-        description: "serialized BE response",
-      ),
-    ],
-  );
+    // error with data
+    ..error(
+      'error',
+      data: [
+        EnLoggerData(
+          name: 'response',
+          content: jsonEncode('BE data'),
+          description: 'serialized BE response',
+        ),
+      ],
+    );
 
   // logger instance with prefix
-  final instLogger = logger.getConfiguredInstance(prefix: 'API Repository');
-  instLogger.debug('a debug message'); // [API Repository] a debug message
-  instLogger.error(
-    'error',
-    prefix: 'Custom prefix',
-  ); // [Custom prefix] a debug message
+  logger.getConfiguredInstance(prefix: 'API Repository')
+
+    // [API Repository] a debug message
+    ..debug('a debug message')
+
+    // [Custom prefix] a debug message
+    ..error(
+      'error',
+      prefix: 'Custom prefix',
+    );
 }
 
 class SentryHandler extends EnLoggerHandler {

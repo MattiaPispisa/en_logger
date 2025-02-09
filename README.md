@@ -99,6 +99,25 @@ You can also create custom colors.
 ```dart
 PrinterColor.custom(schema: '\x1B[31m')
 ```
+
+### CustomHandler
+
+1. Create a custom handler that extends `EnLoggerHandler`;
+
+1. Override `write` method with your custom write operation.
+
+```dart
+class FileHandler extends EnLoggerHandler {
+  @override
+  void write(String message) {
+    _logToFile(message);
+  }
+}
+```
+
+Some examples are shown in the [example](./example/main.dart) project.
+
+
 [ci_badge]: https://github.com/VeryGoodOpenSource/very_good_workflows/actions/workflows/ci.yml/badge.svg
 [ci_link]: https://github.com/MattiaPispisa/en_logger/actions
 [license_badge]: https://img.shields.io/badge/license-MIT-blue.svg

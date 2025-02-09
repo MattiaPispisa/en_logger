@@ -23,7 +23,10 @@ typedef DeveloperLogCallback = void Function(
 /// write message on developer console ([developer.log])
 class PrinterHandler extends EnLoggerHandler {
   /// [writeIfContains] in OR
+  ///
   /// [writeIfNotContains] in AND
+  ///
+  /// default [prefixFormat] is [PrefixFormat.snakeSquare]
   factory PrinterHandler({
     PrefixFormat? prefixFormat,
     List<String>? writeIfContains,
@@ -56,8 +59,11 @@ class PrinterHandler extends EnLoggerHandler {
     required DeveloperLogCallback logCallback,
     this.writeIfContains,
     this.writeIfNotContains,
-    super.prefixFormat,
-  }) : _logCallback = logCallback;
+    PrefixFormat? prefixFormat,
+  })  : _logCallback = logCallback,
+        super(
+          prefixFormat: prefixFormat ?? const PrefixFormat.snakeSquare(),
+        );
 
   final PrinterColorConfiguration _configuration = PrinterColorConfiguration();
 

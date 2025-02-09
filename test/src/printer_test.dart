@@ -65,6 +65,31 @@ void main() {
         },
       );
 
+      test(
+        'should write message with prefix with default prefix format',
+        () {
+          handler = PrinterHandler.custom(
+            logCallback: (
+              String content, {
+              DateTime? time,
+              int? sequenceNumber,
+              int level = 0,
+              String name = '',
+              Zone? zone,
+              Object? error,
+              StackTrace? stackTrace,
+            }) {
+              message = content;
+            },
+          )..write('error', severity: Severity.error, prefix: 'Prefix');
+
+          expect(
+            message,
+            '${const PrinterColor.red().schema}[PREFIX] error\x1B[0m',
+          );
+        },
+      );
+
       test('should configure colors', () {
         handler
           ..configure({

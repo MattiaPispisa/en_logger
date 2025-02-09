@@ -202,8 +202,8 @@ void main() {
           final mockHandler = _MockHandler();
           final logger = EnLogger()..addHandler(mockHandler);
 
+          // debug is called from a new instance with default prefix "prefix"
           logger.getConfiguredInstance(prefix: 'prefix').debug('debug');
-
           verify(
             () => mockHandler.write(
               'debug',
@@ -213,6 +213,92 @@ void main() {
             ),
           ).called(1);
 
+          // no prefix is passed and there isn't a default one
+          logger.debug('debug');
+          verify(
+            () => mockHandler.write(
+              'debug',
+              stackTrace: any(named: 'stackTrace'),
+              severity: Severity.debug,
+            ),
+          ).called(1);
+        },
+      );
+
+      test(
+        'should handle EnLogger instances correctly',
+        () {
+          final mockHandler = _MockHandler();
+          final secondMockHandler = _MockHandler();
+
+          final logger = EnLogger()..addHandler(mockHandler);
+
+          logger.getConfiguredInstance(prefix: 'prefix')
+            ..addHandler(secondMockHandler)
+            ..debug('debug');
+
+          verify(
+            () => mockHandler.write(
+              'debug',
+              stackTrace: any(named: 'stackTrace'),
+              severity: Severity.debug,
+              prefix: 'prefix',
+            ),
+          ).called(1);
+          verify(
+            () => secondMockHandler.write(
+              'debug',
+              stackTrace: any(named: 'stackTrace'),
+              severity: Severity.debug,
+              prefix: 'prefix',
+            ),
+          ).called(1);
+
+          // secondMockHandler is not available in the first logger
+          logger.debug('debug');
+          verifyNever(
+            () => secondMockHandler.write(
+              'debug',
+              stackTrace: any(named: 'stackTrace'),
+              severity: Severity.debug,
+              prefix: 'prefix',
+            ),
+          );
+        },
+      );
+
+      test(
+        'should handle EnLogger instances correctly',
+        () {
+          final mockHandler = _MockHandler();
+          final secondMockHandler = _MockHandler();
+
+          final logger = EnLogger()..addHandler(mockHandler);
+
+          logger.getConfiguredInstance(prefix: 'prefix')
+            ..addHandler(secondMockHandler)
+            ..removeHandler(mockHandler)
+            ..debug('debug');
+
+          // test mockHandler is removed only from the new logger instance
+          verifyNever(
+            () => mockHandler.write(
+              'debug',
+              stackTrace: any(named: 'stackTrace'),
+              severity: Severity.debug,
+              prefix: 'prefix',
+            ),
+          );
+          verify(
+            () => secondMockHandler.write(
+              'debug',
+              stackTrace: any(named: 'stackTrace'),
+              severity: Severity.debug,
+              prefix: 'prefix',
+            ),
+          ).called(1);
+
+          // secondMockHandler is not available in the first logger
           logger.debug('debug');
           verify(
             () => mockHandler.write(

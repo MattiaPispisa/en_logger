@@ -1,8 +1,12 @@
 # En Logger
 
-[![ci][ci_badge]][ci_link]
-[![License: MIT][license_badge]][license_link]
-[![coverage][coverage_badge]][coverage_badge]
+[![package badge][package_badge]][pub_link]
+[![pub points][pub_points_badge]][pub_link]
+[![pub likes][pub_likes_badge]][pub_link]
+[![codecov][codecov_badge]][codecov_link]
+[![ci badge][ci_badge]][ci_link]
+[![license][license_badge]][license_link]
+[![pub publisher][pub_publisher_badge]][pub_publisher_link]
 
 `EnLogger` allows you to write log messages according to your needs without restricting you to
 writing messages to the debug console or other systems. It maintains a list of `EnLoggerHandlers`
@@ -118,8 +122,15 @@ class FileHandler extends EnLoggerHandler {
 Some examples are shown in the [example](./example/main.dart) project.
 
 
-[ci_badge]: https://github.com/VeryGoodOpenSource/very_good_workflows/actions/workflows/ci.yml/badge.svg
-[ci_link]: https://github.com/MattiaPispisa/en_logger/actions
 [license_badge]: https://img.shields.io/badge/license-MIT-blue.svg
 [license_link]: https://opensource.org/licenses/MIT
-[coverage_badge]: https://img.shields.io/badge/coverage-100%25-green
+[package_badge]: https://img.shields.io/pub/v/en_logger.svg
+[codecov_badge]: https://img.shields.io/codecov/c/github/MattiaPispisa/en_logger/main?logo=codecov
+[codecov_link]: https://app.codecov.io/gh/MattiaPispisa/en_logger/tree/main/packages/en_logger
+[ci_badge]: https://img.shields.io/github/actions/workflow/status/MattiaPispisa/en_logger/main.yaml
+[ci_link]: https://github.com/MattiaPispisa/en_logger/actions/workflows/main.yaml
+[pub_points_badge]: https://img.shields.io/pub/points/en_logger
+[pub_link]: https://pub.dev/packages/en_logger
+[pub_publisher_badge]: https://img.shields.io/pub/publisher/en_logger
+[pub_publisher_link]: https://pub.dev/packages?q=publisher%3Amattiapispisa.it
+[pub_likes_badge]: https://img.shields.io/pub/likes/en_logger

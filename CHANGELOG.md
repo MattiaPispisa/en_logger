@@ -1,3 +1,9 @@
+## [1.2.1] - 2026-01-17
+
+### Changed
+
+- chore: Improved documentation
+
 ## [1.2.0] - 2025-02-09
 
 ### Added

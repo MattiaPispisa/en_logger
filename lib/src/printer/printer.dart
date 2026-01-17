@@ -18,15 +18,45 @@ typedef DeveloperLogCallback = void Function(
   StackTrace? stackTrace,
 });
 
-/// concrete implementation of [EnLoggerHandler]
+/// {@template printer_handler}
+/// # PrinterHandler
+/// ## Description
+/// Concrete implementation of [EnLoggerHandler].
 ///
-/// write message on developer console ([developer.log])
+/// Writes messages to the developer console using [developer.log].
+///
+/// Supports color configuration per severity level and message filtering.
+///
+/// ## Example:
+/// ```dart
+/// final printer = PrinterHandler()
+///   ..configure({
+///     Severity.notice: const PrinterColor.green(),
+///   });
+///
+/// final logger = EnLogger()..addHandler(printer);
+/// logger.debug('a debug message');
+/// ```
+/// {@endtemplate}
 class PrinterHandler extends EnLoggerHandler {
-  /// [writeIfContains] in OR
+  /// {@template printer_handler_constructor}
+  /// # Constructor
+  /// ## Description
+  /// Creates a new [PrinterHandler] instance.
   ///
-  /// [writeIfNotContains] in AND
+  /// ## Parameters
+  /// [prefixFormat] - Format for displaying message prefixes.
+  /// Defaults to [PrefixFormat.snakeSquare].
   ///
-  /// default [prefixFormat] is [PrefixFormat.snakeSquare]
+  /// [writeIfContains] - Optional list of strings. Messages will only be
+  /// written if they contain at least one of these strings (OR logic).
+  ///
+  /// [writeIfNotContains] - Optional list of strings. Messages will only be
+  /// written if they don't contain any of these strings
+  /// (AND logic with [writeIfContains]).
+  /// {@endtemplate}
+  ///
+  /// {@macro printer_handler}
   factory PrinterHandler({
     PrefixFormat? prefixFormat,
     List<String>? writeIfContains,
@@ -40,7 +70,11 @@ class PrinterHandler extends EnLoggerHandler {
     );
   }
 
-  /// custom [logCallback]
+  /// Creates a [PrinterHandler] with a custom [logCallback].
+  ///
+  /// Use this factory when you need to customize how log messages are written,
+  /// for example, to capture logs for testing or redirect them to a different
+  /// output.
   factory PrinterHandler.custom({
     required DeveloperLogCallback logCallback,
     PrefixFormat? prefixFormat,
@@ -69,13 +103,34 @@ class PrinterHandler extends EnLoggerHandler {
 
   final DeveloperLogCallback _logCallback;
 
-  /// write text only if contains one of the [writeIfContains]
+  /// Write text only if it contains one of the strings in this list (OR logic).
+  ///
+  /// If set, messages will only be written if they contain at least one
+  /// of the strings in this list.
   final List<String>? writeIfContains;
 
-  /// write text only if not contains any of the [writeIfNotContains]
+  /// Write text only if it doesn't contain any of the strings in this list.
+  ///
+  /// If set, messages will only be written if they don't contain any
+  /// of the strings in this list. This works in conjunction with
+  /// [writeIfContains] (AND logic).
   final List<String>? writeIfNotContains;
 
-  /// configure printer colors
+  /// Configures printer colors for severity levels.
+  ///
+  /// Updates the color configuration for the specified severity levels.
+  /// Severity levels not in [configuration] will keep their default colors.
+  ///
+  /// [configuration] - Map of severity levels to their corresponding colors.
+  ///
+  /// Example:
+  /// ```dart
+  /// final printer = PrinterHandler();
+  /// printer.configure({
+  ///   Severity.informational: const PrinterColor.magenta(),
+  ///   Severity.debug: const PrinterColor.custom(schema: '\x1B[38m'),
+  /// });
+  /// ```
   void configure(Map<Severity, PrinterColor> configuration) {
     _configuration.setSeverityColors(configuration);
   }

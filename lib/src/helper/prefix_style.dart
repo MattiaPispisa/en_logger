@@ -1,15 +1,52 @@
-/// prefix style
+/// Prefix style for formatting prefix text.
+///
+/// Defines how prefix strings are transformed before being displayed.
 enum PrefixStyle {
-  /// UPPER_SNAKE_CASE
+  /// UPPER_SNAKE_CASE style.
+  ///
+  /// Converts text to uppercase with underscores separating words.
+  ///
+  /// Example:
+  /// ```dart
+  /// PrefixStyle.uppercaseSnakeCase.applyOn('API Repository');
+  /// // Returns: 'API_REPOSITORY'
+  /// ```
   uppercaseSnakeCase,
 
-  /// snake_case
+  /// snake_case style.
+  ///
+  /// Converts text to lowercase with underscores separating words.
+  ///
+  /// Example:
+  /// ```dart
+  /// PrefixStyle.snakeCase.applyOn('API Repository');
+  /// // Returns: 'api_repository'
+  /// ```
   snakeCase,
 
-  /// PascalCase
+  /// PascalCase style.
+  ///
+  /// Converts text to PascalCase (first letter of each word capitalized,
+  /// no separators).
+  ///
+  /// Example:
+  /// ```dart
+  /// PrefixStyle.pascalCase.applyOn('API Repository');
+  /// // Returns: 'ApiRepository'
+  /// ```
   pascalCase;
 
-  /// apply style on [text]
+  /// Applies this style on [text].
+  ///
+  /// [text] - The text to format.
+  ///
+  /// Returns the formatted text according to this style.
+  ///
+  /// Example:
+  /// ```dart
+  /// final result = PrefixStyle.uppercaseSnakeCase.applyOn('My Prefix');
+  /// // result: 'MY_PREFIX'
+  /// ```
   String applyOn(String text) {
     return text.applyStyle(this);
   }

@@ -31,7 +31,7 @@ class EnLoggerData {
   /// 'response' or 'api_response'.
   ///
   /// [content] - The encoded data content.
-  /// This should be a string representation of the data, 
+  /// This should be a string representation of the data,
   /// such as JSON-encoded data.
   ///
   /// [description] - A short description of the content.

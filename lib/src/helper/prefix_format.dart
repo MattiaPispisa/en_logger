@@ -32,7 +32,7 @@ class PrefixFormat {
   /// [style] - Style to apply on the prefix text. Defaults to
   ///           [PrefixStyle.uppercaseSnakeCase].
   /// {@endtemplate}
-  /// 
+  ///
   /// {@macro prefix_format}
   const PrefixFormat({
     this.startFormat,

@@ -1,9 +1,53 @@
+import 'dart:async';
+
 import 'package:en_logger/en_logger.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
 
+// TODO(mattia): lazy that throws
+
 class _MockHandler extends Mock implements EnLoggerHandler {}
+
+class _MockObject extends Mock implements Object {
+  int toStringCalledCount = 0;
+
+  @override
+  String toString() {
+    toStringCalledCount++;
+    return super.toString();
+  }
+}
+
+class _NoOpEnHandler extends EnLoggerHandler {
+  int writeCalledCount = 0;
+
+  @override
+  void write(
+    String message, {
+    required Severity severity,
+    String? prefix,
+    StackTrace? stackTrace,
+    List<EnLoggerData>? data,
+  }) {
+    writeCalledCount++;
+    return;
+  }
+}
+
+/* class _HandlerThatCannotWrite extends EnLoggerHandler {
+  @override
+  bool can(Severity severity) => false;
+
+  @override
+  void write(
+    String message, {
+    required Severity severity,
+    String? prefix,
+    StackTrace? stackTrace,
+    List<EnLoggerData>? data,
+  }) {}
+} */
 
 void main() {
   group(
@@ -13,11 +57,28 @@ void main() {
         expect(EnLogger.new, returnsNormally);
       });
 
+      test('should "can" be default true', () {
+        final handler = _NoOpEnHandler();
+        EnLogger()
+          ..addHandler(handler)
+          ..debug('debug');
+
+        expect(handler.writeCalledCount, 1);
+      });
+
       test(
         'should manage handlers correctly',
-        () {
+        () async {
           registerFallbackValue(Severity.debug);
+
           final mockHandler = _MockHandler();
+          when(
+            () => mockHandler.can(
+              severity: any(named: 'severity'),
+              prefix: any(named: 'prefix'),
+            ),
+          ).thenReturn(true);
+
           final logger = EnLogger()
             ..addHandler(mockHandler)
             ..debug('hy');
@@ -90,10 +151,57 @@ void main() {
         },
       );
 
+      test('should toString() message only once', () {
+        registerFallbackValue(Severity.debug);
+
+        final mockObject = _MockObject();
+
+        final mockHandler = _MockHandler();
+        final secondMockHandler = _MockHandler();
+
+        when(
+          () => mockHandler.can(
+            severity: any(named: 'severity'),
+            prefix: any(named: 'prefix'),
+          ),
+        ).thenReturn(true);
+
+        when(
+          () => secondMockHandler.can(
+            severity: any(named: 'severity'),
+            prefix: any(named: 'prefix'),
+          ),
+        ).thenReturn(true);
+
+        EnLogger()
+          ..addHandlers([mockHandler, secondMockHandler])
+          ..debug(mockObject);
+
+        expect(mockObject.toStringCalledCount, 1);
+        verify(
+          () => mockHandler.write(
+            any(),
+            severity: Severity.debug,
+            prefix: any(named: 'prefix'),
+            stackTrace: any(named: 'stackTrace'),
+            data: any(named: 'data'),
+          ),
+        ).called(1);
+      });
+
       test(
         'should write with correct data',
         () {
+          registerFallbackValue(Severity.debug);
+
           final mockHandler = _MockHandler();
+          when(
+            () => mockHandler.can(
+              severity: any(named: 'severity'),
+              prefix: any(named: 'prefix'),
+            ),
+          ).thenReturn(true);
+
           final logger = EnLogger()
             ..addHandler(mockHandler)
             ..debug(
@@ -171,7 +279,16 @@ void main() {
       test(
         'should handle EnLoggerData',
         () {
+          registerFallbackValue(Severity.debug);
+
           final mockHandler = _MockHandler();
+          when(
+            () => mockHandler.can(
+              severity: any(named: 'severity'),
+              prefix: any(named: 'prefix'),
+            ),
+          ).thenReturn(true);
+
           final data = [
             const EnLoggerData(
               name: 'file.txt',
@@ -199,7 +316,16 @@ void main() {
       test(
         'should handle EnLogger instances correctly',
         () {
+          registerFallbackValue(Severity.debug);
+
           final mockHandler = _MockHandler();
+          when(
+            () => mockHandler.can(
+              severity: any(named: 'severity'),
+              prefix: any(named: 'prefix'),
+            ),
+          ).thenReturn(true);
+
           final logger = EnLogger()..addHandler(mockHandler);
 
           // debug is called from a new instance with default prefix "prefix"
@@ -228,8 +354,24 @@ void main() {
       test(
         'should handle EnLogger instances correctly',
         () {
+          registerFallbackValue(Severity.debug);
+
           final mockHandler = _MockHandler();
           final secondMockHandler = _MockHandler();
+
+          when(
+            () => mockHandler.can(
+              severity: any(named: 'severity'),
+              prefix: any(named: 'prefix'),
+            ),
+          ).thenReturn(true);
+
+          when(
+            () => secondMockHandler.can(
+              severity: any(named: 'severity'),
+              prefix: any(named: 'prefix'),
+            ),
+          ).thenReturn(true);
 
           final logger = EnLogger()..addHandler(mockHandler);
 
@@ -270,8 +412,24 @@ void main() {
       test(
         'should handle EnLogger instances correctly',
         () {
+          registerFallbackValue(Severity.debug);
+
           final mockHandler = _MockHandler();
           final secondMockHandler = _MockHandler();
+
+          when(
+            () => mockHandler.can(
+              severity: any(named: 'severity'),
+              prefix: any(named: 'prefix'),
+            ),
+          ).thenReturn(true);
+
+          when(
+            () => secondMockHandler.can(
+              severity: any(named: 'severity'),
+              prefix: any(named: 'prefix'),
+            ),
+          ).thenReturn(true);
 
           final logger = EnLogger()..addHandler(mockHandler);
 
@@ -305,6 +463,320 @@ void main() {
               'debug',
               stackTrace: any(named: 'stackTrace'),
               severity: Severity.debug,
+            ),
+          ).called(1);
+        },
+      );
+
+      test(
+        'should manage lazy handlers correctly',
+        () async {
+          registerFallbackValue(Severity.debug);
+
+          final mockHandler = _MockHandler();
+          when(
+            () => mockHandler.can(
+              severity: any(named: 'severity'),
+              prefix: any(named: 'prefix'),
+            ),
+          ).thenReturn(true);
+
+          final logger = EnLogger()
+            ..addHandler(mockHandler)
+            ..lazyDebug(() => 'hy');
+
+          await Future<void>.delayed(Duration.zero);
+
+          verify(
+            () => mockHandler.write(
+              'hy',
+              prefix: any(named: 'prefix'),
+              stackTrace: any(named: 'stackTrace'),
+              severity: Severity.debug,
+              data: any(named: 'data'),
+            ),
+          ).called(1);
+
+          logger
+            ..removeHandler(mockHandler)
+            ..lazyCritical(() => 'error');
+
+          await Future<void>.delayed(Duration.zero);
+
+          verifyNever(
+            () => mockHandler.write(
+              'error',
+              prefix: any(named: 'prefix'),
+              stackTrace: any(named: 'stackTrace'),
+              severity: Severity.critical,
+              data: any(named: 'data'),
+            ),
+          );
+
+          logger
+            ..addHandler(mockHandler)
+            ..removeAllHandlers()
+            ..lazyDebug(() => 'hy');
+
+          await Future<void>.delayed(Duration.zero);
+
+          verifyNever(
+            () => mockHandler.write(
+              'hy',
+              prefix: any(named: 'prefix'),
+              stackTrace: any(named: 'stackTrace'),
+              severity: any(named: 'severity'),
+              data: any(named: 'data'),
+            ),
+          );
+
+          logger
+            ..addHandlers([mockHandler])
+            ..lazyDebug(() => 'jo');
+
+          await Future<void>.delayed(Duration.zero);
+
+          verify(
+            () => mockHandler.write(
+              'jo',
+              prefix: any(named: 'prefix'),
+              stackTrace: any(named: 'stackTrace'),
+              severity: Severity.debug,
+              data: any(named: 'data'),
+            ),
+          ).called(1);
+
+          logger
+            ..removeHandlers([mockHandler])
+            ..lazyDebug(() => 'no write');
+
+          await Future<void>.delayed(Duration.zero);
+
+          verifyNever(
+            () => mockHandler.write(
+              'no write',
+              prefix: any(named: 'prefix'),
+              stackTrace: any(named: 'stackTrace'),
+              severity: Severity.debug,
+              data: any(named: 'data'),
+            ),
+          );
+        },
+      );
+
+      test(
+        'should lazy write with correct data',
+        () async {
+          registerFallbackValue(Severity.debug);
+
+          final mockHandler = _MockHandler();
+          when(
+            () => mockHandler.can(
+              severity: any(named: 'severity'),
+              prefix: any(named: 'prefix'),
+            ),
+          ).thenReturn(true);
+
+          final logger = EnLogger()
+            ..addHandler(mockHandler)
+            ..lazyDebug(
+              () => 'debug',
+              prefix: 'prefix',
+              dataProvider: () => [],
+            );
+
+          await Future<void>.delayed(Duration.zero);
+
+          verify(
+            () => mockHandler.write(
+              'debug',
+              prefix: 'prefix',
+              severity: Severity.debug,
+              data: [],
+            ),
+          ).called(1);
+
+          logger.lazyInfo(() => 'info');
+
+          await Future<void>.delayed(Duration.zero);
+
+          verify(
+            () => mockHandler.write(
+              'info',
+              severity: Severity.informational,
+            ),
+          ).called(1);
+
+          logger.lazyNormal(() => 'notice');
+
+          await Future<void>.delayed(Duration.zero);
+
+          verify(
+            () => mockHandler.write(
+              'notice',
+              severity: Severity.notice,
+            ),
+          ).called(1);
+
+          logger.lazyWarning(() => 'warning');
+
+          await Future<void>.delayed(Duration.zero);
+
+          verify(
+            () => mockHandler.write(
+              'warning',
+              severity: Severity.warning,
+            ),
+          ).called(1);
+
+          logger.lazyError(() => 'error');
+
+          await Future<void>.delayed(Duration.zero);
+
+          verify(
+            () => mockHandler.write(
+              'error',
+              severity: Severity.error,
+            ),
+          ).called(1);
+
+          logger.lazyCritical(() => 'critical');
+
+          await Future<void>.delayed(Duration.zero);
+
+          verify(
+            () => mockHandler.write(
+              'critical',
+              severity: Severity.critical,
+            ),
+          ).called(1);
+
+          logger.lazyAlert(() => 'alert');
+
+          await Future<void>.delayed(Duration.zero);
+
+          verify(
+            () => mockHandler.write(
+              'alert',
+              severity: Severity.alert,
+            ),
+          ).called(1);
+
+          logger.lazyEmergency(() => 'emergency');
+
+          await Future<void>.delayed(Duration.zero);
+
+          verify(
+            () => mockHandler.write(
+              'emergency',
+              severity: Severity.emergency,
+            ),
+          ).called(1);
+        },
+      );
+
+      test(
+        'lazy message are evaluated only if needed and only once',
+        () async {
+          registerFallbackValue(Severity.debug);
+
+          final mockHandler = _MockHandler();
+          final secondMockHandler = _MockHandler();
+
+          var calledCount = 0;
+
+          when(
+            () => mockHandler.can(
+              severity: any(named: 'severity'),
+              prefix: any(named: 'prefix'),
+            ),
+          ).thenReturn(false);
+
+          when(
+            () => secondMockHandler.can(
+              severity: any(named: 'severity'),
+              prefix: any(named: 'prefix'),
+            ),
+          ).thenReturn(false);
+
+          final logger = EnLogger()
+            ..addHandlers([mockHandler, secondMockHandler])
+            ..lazyDebug(() {
+              calledCount++;
+              return 'lazy message';
+            });
+
+          await Future<void>.delayed(Duration.zero);
+
+          expect(calledCount, 0);
+
+          when(
+            () => mockHandler.can(
+              severity: any(named: 'severity'),
+              prefix: any(named: 'prefix'),
+            ),
+          ).thenReturn(true);
+
+          logger.lazyDebug(() {
+            calledCount++;
+            return 'lazy message';
+          });
+
+          await Future<void>.delayed(Duration.zero);
+
+          expect(calledCount, 1);
+          verify(
+            () => mockHandler.write(
+              'lazy message',
+              severity: Severity.debug,
+              prefix: any(named: 'prefix'),
+              stackTrace: any(named: 'stackTrace'),
+              data: any(named: 'data'),
+            ),
+          ).called(1);
+          verifyNever(
+            () => secondMockHandler.write(
+              'lazy message',
+              severity: Severity.debug,
+              prefix: any(named: 'prefix'),
+              stackTrace: any(named: 'stackTrace'),
+              data: any(named: 'data'),
+            ),
+          );
+
+          calledCount = 0;
+
+          when(
+            () => secondMockHandler.can(
+              severity: any(named: 'severity'),
+              prefix: any(named: 'prefix'),
+            ),
+          ).thenReturn(true);
+
+          logger.lazyDebug(() {
+            calledCount++;
+            return 'lazy message';
+          });
+
+          await Future<void>.delayed(Duration.zero);
+
+          expect(calledCount, 1);
+          verify(
+            () => mockHandler.write(
+              'lazy message',
+              severity: Severity.debug,
+              prefix: any(named: 'prefix'),
+              stackTrace: any(named: 'stackTrace'),
+              data: any(named: 'data'),
+            ),
+          );
+          verify(
+            () => secondMockHandler.write(
+              'lazy message',
+              severity: Severity.debug,
+              prefix: any(named: 'prefix'),
+              stackTrace: any(named: 'stackTrace'),
+              data: any(named: 'data'),
             ),
           ).called(1);
         },

@@ -2,6 +2,16 @@ import 'dart:async';
 
 import 'package:en_logger/en_logger.dart';
 
+/// An async closure that returns a value of type [T].
+/// Used for lazy evaluation in [EnLogger] "lazy" methods.
+typedef EnLoggerLazyProvider<T> = FutureOr<T> Function();
+
+/// [EnLoggerLazyMessageProvider] for [Object].
+typedef EnLoggerLazyMessageProvider = EnLoggerLazyProvider<Object>;
+
+/// [EnLoggerLazyDataProvider] for [EnLoggerData].
+typedef EnLoggerLazyDataProvider = EnLoggerLazyProvider<List<EnLoggerData>>;
+
 /// {@template en_logger}
 /// # EnLogger
 ///
@@ -165,12 +175,17 @@ class EnLogger {
     );
   }
 
+  /// {@template en_logger_emergency}
+  /// ## Description
   /// Logs a message with [Severity.emergency] level.
   ///
   /// System is unusable.
   ///
   /// Condition: A panic condition.
+  /// {@endtemplate}
   ///
+  /// {@template en_logger_error_parameters}
+  /// ## Parameters
   /// [error] - The error message or object to log.
   ///
   /// [prefix] - Optional prefix for this log message. Overrides the default
@@ -179,8 +194,9 @@ class EnLogger {
   /// [stackTrace] - Optional stack trace associated with the error.
   ///
   /// [data] - Optional list of additional data to attach to the log message.
+  /// {@endtemplate}
   ///
-  /// Example:
+  /// ## Example
   /// ```dart
   /// final logger = EnLogger()..addHandler(PrinterHandler());
   /// logger.emergency(
@@ -212,22 +228,18 @@ class EnLogger {
     );
   }
 
+  /// {@template en_logger_alert}
+  /// ## Description
   /// Logs a message with [Severity.alert] level.
   ///
   /// Action must be taken immediately.
   ///
   /// Condition: A condition that should be corrected immediately.
+  /// {@endtemplate}
   ///
-  /// [error] - The error message or object to log.
+  /// {@macro en_logger_error_parameters}
   ///
-  /// [prefix] - Optional prefix for this log message. Overrides the default
-  ///            prefix if this logger was created with [getConfiguredInstance].
-  ///
-  /// [stackTrace] - Optional stack trace associated with the error.
-  ///
-  /// [data] - Optional list of additional data to attach to the log message.
-  ///
-  /// Example:
+  /// ## Example
   /// ```dart
   /// final logger = EnLogger()..addHandler(PrinterHandler());
   /// logger.alert(
@@ -252,22 +264,18 @@ class EnLogger {
     );
   }
 
+  /// {@template en_logger_critical}
+  /// ## Description
   /// Logs a message with [Severity.critical] level.
   ///
   /// Critical conditions.
   ///
   /// Condition: Hard device errors.
+  /// {@endtemplate}
   ///
-  /// [error] - The error message or object to log.
+  /// {@macro en_logger_error_parameters}
   ///
-  /// [prefix] - Optional prefix for this log message. Overrides the default
-  ///            prefix if this logger was created with [getConfiguredInstance].
-  ///
-  /// [stackTrace] - Optional stack trace associated with the error.
-  ///
-  /// [data] - Optional list of additional data to attach to the log message.
-  ///
-  /// Example:
+  /// ## Example
   /// ```dart
   /// final logger = EnLogger()..addHandler(PrinterHandler());
   /// logger.critical(
@@ -292,20 +300,16 @@ class EnLogger {
     );
   }
 
+  /// {@template en_logger_error}
+  /// ## Description
   /// Logs a message with [Severity.error] level.
   ///
   /// Error conditions.
+  /// {@endtemplate}
   ///
-  /// [error] - The error message or object to log.
+  /// {@macro en_logger_error_parameters}
   ///
-  /// [prefix] - Optional prefix for this log message. Overrides the default
-  ///            prefix if this logger was created with [getConfiguredInstance].
-  ///
-  /// [stackTrace] - Optional stack trace associated with the error.
-  ///
-  /// [data] - Optional list of additional data to attach to the log message.
-  ///
-  /// Example:
+  /// ## Example
   /// ```dart
   /// final logger = EnLogger()..addHandler(PrinterHandler());
   /// logger.error(
@@ -336,20 +340,26 @@ class EnLogger {
     );
   }
 
+  /// {@template en_logger_warning}
+  /// ## Description
   /// Logs a message with [Severity.warning] level.
   ///
   /// Warning conditions.
   ///
   /// May indicate that an error will occur if action is not taken.
+  /// {@endtemplate}
   ///
+  /// {@template en_logger_message_parameters}
+  /// ## Parameters
   /// [message] - The message to log.
   ///
   /// [prefix] - Optional prefix for this log message. Overrides the default
   ///            prefix if this logger was created with [getConfiguredInstance].
   ///
   /// [data] - Optional list of additional data to attach to the log message.
+  /// {@endtemplate}
   ///
-  /// Example:
+  /// ## Example
   /// ```dart
   /// final logger = EnLogger()..addHandler(PrinterHandler());
   /// logger.warning('Low disk space');
@@ -370,21 +380,19 @@ class EnLogger {
     );
   }
 
+  /// {@template en_logger_notice}
+  /// ## Description
   /// Logs a message with [Severity.notice] level.
   ///
   /// Normal but significant conditions.
   ///
   /// Condition: Conditions that are not error conditions,
   /// but that may require special handling.
+  /// {@endtemplate}
   ///
-  /// [message] - The message to log.
+  /// {@macro en_logger_message_parameters}
   ///
-  /// [prefix] - Optional prefix for this log message. Overrides the default
-  ///            prefix if this logger was created with [getConfiguredInstance].
-  ///
-  /// [data] - Optional list of additional data to attach to the log message.
-  ///
-  /// Example:
+  /// ## Example
   /// ```dart
   /// final logger = EnLogger()..addHandler(PrinterHandler());
   /// logger.normal('User logged in');
@@ -405,20 +413,18 @@ class EnLogger {
     );
   }
 
+  /// {@template en_logger_informational}
+  /// ## Description
   /// Logs a message with [Severity.informational] level.
   ///
   /// Informational messages.
   ///
   /// Condition: Confirmation that the program is working as expected.
+  /// {@endtemplate}
   ///
-  /// [message] - The message to log.
+  /// {@macro en_logger_message_parameters}
   ///
-  /// [prefix] - Optional prefix for this log message. Overrides the default
-  ///            prefix if this logger was created with [getConfiguredInstance].
-  ///
-  /// [data] - Optional list of additional data to attach to the log message.
-  ///
-  /// Example:
+  /// ## Example
   /// ```dart
   /// final logger = EnLogger()..addHandler(PrinterHandler());
   /// logger.info('Application started');
@@ -439,21 +445,19 @@ class EnLogger {
     );
   }
 
+  /// {@template en_logger_debug}
+  /// ## Description
   /// Logs a message with [Severity.debug] level.
   ///
   /// Debug-level messages.
   ///
   /// Condition: Messages that contain information
   /// normally of use only when debugging a program.
+  /// {@endtemplate}
   ///
-  /// [message] - The message to log.
+  /// {@macro en_logger_message_parameters}
   ///
-  /// [prefix] - Optional prefix for this log message. Overrides the default
-  ///            prefix if this logger was created with [getConfiguredInstance].
-  ///
-  /// [data] - Optional list of additional data to attach to the log message.
-  ///
-  /// Example:
+  /// ## Example
   /// ```dart
   /// final logger = EnLogger()..addHandler(PrinterHandler());
   /// logger.debug('a debug message');
@@ -477,6 +481,252 @@ class EnLogger {
     );
   }
 
+  /// {@macro en_logger_emergency}
+  ///
+  /// {@template en_logger_lazy_variant}
+  /// ## Lazy variant
+  /// Lazy version: [messageProvider] is called only when at least one handler
+  /// actually writes, so expensive computations are skipped when the log
+  /// level is disabled.
+  /// {@endtemplate}
+  ///
+  /// {@template en_logger_lazy_error_parameters}
+  /// ## Parameters
+  /// [messageProvider] - Closure that returns the message. Called only when
+  /// at least one handler will write.
+  ///
+  /// [prefix] - Optional prefix for this log message.
+  ///
+  /// [stackTrace] - Optional stack trace associated with the log message.
+  ///
+  /// [dataProvider] - Optional closure that returns the list of additional
+  /// data to attach to the log message. Called only when at least one handler
+  /// will write.
+  /// {@endtemplate}
+  ///
+  /// ## Example
+  /// ```dart
+  /// logger.lazyEmergency(() => fibonacci(20));
+  /// // fibonacci(20) not called if emergency is disabled (handler's `can` returns `false`)
+  /// ```
+  void lazyEmergency(
+    EnLoggerLazyMessageProvider messageProvider, {
+    String? prefix,
+    StackTrace? stackTrace,
+    EnLoggerLazyDataProvider? dataProvider,
+  }) {
+    _log(
+      _EnLogDataDto(
+        lazyMessage: messageProvider,
+        severity: Severity.emergency,
+        prefix: prefix,
+        stackTrace: stackTrace,
+        dataProvider: dataProvider,
+      ),
+    );
+  }
+
+  /// {@macro en_logger_alert}
+  ///
+  /// {@macro en_logger_lazy_variant}
+  ///
+  /// {@macro en_logger_lazy_error_parameters}
+  ///
+  /// ## Example
+  /// ```dart
+  /// logger.lazyAlert(() => fibonacci(20));
+  /// // fibonacci(20) not called if alert is disabled (handler's `can` returns `false`)
+  /// ```
+  void lazyAlert(
+    EnLoggerLazyMessageProvider messageProvider, {
+    String? prefix,
+    StackTrace? stackTrace,
+    EnLoggerLazyDataProvider? dataProvider,
+  }) {
+    _log(
+      _EnLogDataDto(
+        lazyMessage: messageProvider,
+        severity: Severity.alert,
+        prefix: prefix,
+        stackTrace: stackTrace,
+        dataProvider: dataProvider,
+      ),
+    );
+  }
+
+  /// {@macro en_logger_critical}
+  ///
+  /// {@macro en_logger_lazy_variant}
+  ///
+  /// {@macro en_logger_lazy_error_parameters}
+  ///
+  /// ## Example
+  /// ```dart
+  /// logger.lazyCritical(() => fibonacci(20));
+  /// // fibonacci(20) not called if critical is disabled (handler's `can` returns `false`)
+  /// ```
+  void lazyCritical(
+    EnLoggerLazyMessageProvider messageProvider, {
+    String? prefix,
+    StackTrace? stackTrace,
+    EnLoggerLazyDataProvider? dataProvider,
+  }) {
+    _log(
+      _EnLogDataDto(
+        lazyMessage: messageProvider,
+        severity: Severity.critical,
+        prefix: prefix,
+        stackTrace: stackTrace,
+        dataProvider: dataProvider,
+      ),
+    );
+  }
+
+  /// {@macro en_logger_error}
+  ///
+  /// {@macro en_logger_lazy_variant}
+  ///
+  /// {@macro en_logger_lazy_error_parameters}
+  ///
+  /// ## Example
+  /// ```dart
+  /// logger.lazyError(() => fibonacci(20));
+  /// // fibonacci(20) not called if error is disabled (handler's `can` returns `false`)
+  /// ```
+  void lazyError(
+    EnLoggerLazyMessageProvider messageProvider, {
+    String? prefix,
+    StackTrace? stackTrace,
+    EnLoggerLazyDataProvider? dataProvider,
+  }) {
+    _log(
+      _EnLogDataDto(
+        lazyMessage: messageProvider,
+        severity: Severity.error,
+        prefix: prefix,
+        stackTrace: stackTrace,
+        dataProvider: dataProvider,
+      ),
+    );
+  }
+
+  /// {@macro en_logger_warning}
+  ///
+  /// {@macro en_logger_lazy_variant}
+  ///
+  /// {@template en_logger_lazy_message_parameters}
+  /// ## Parameters
+  /// [messageProvider] - Closure that returns the message. Called only when
+  /// at least one handler will write.
+  ///
+  /// [prefix] - Optional prefix for this log message.
+  ///
+  /// [dataProvider] - Optional closure that returns the list of additional
+  /// data to attach to the log message. Called only when at least one handler
+  /// will write.
+  /// {@endtemplate}
+  ///
+  /// ## Example
+  /// ```dart
+  /// logger.lazyWarning(() => fibonacci(20));
+  /// // fibonacci(20) not called if warning is disabled (handler's `can` returns `false`)
+  /// ```
+  void lazyWarning(
+    EnLoggerLazyMessageProvider messageProvider, {
+    String? prefix,
+    EnLoggerLazyDataProvider? dataProvider,
+  }) {
+    _log(
+      _EnLogDataDto(
+        lazyMessage: messageProvider,
+        severity: Severity.warning,
+        prefix: prefix,
+        stackTrace: null,
+        dataProvider: dataProvider,
+      ),
+    );
+  }
+
+  /// {@macro en_logger_notice}
+  ///
+  /// {@macro en_logger_lazy_variant}
+  ///
+  /// {@macro en_logger_lazy_message_parameters}
+  ///
+  /// ## Example
+  /// ```dart
+  /// logger.lazyNormal(() => fibonacci(20));
+  /// // fibonacci(20) not called if normal is disabled (handler's `can` returns `false`)
+  /// ```
+  void lazyNormal(
+    EnLoggerLazyMessageProvider messageProvider, {
+    String? prefix,
+    EnLoggerLazyDataProvider? dataProvider,
+  }) {
+    _log(
+      _EnLogDataDto(
+        lazyMessage: messageProvider,
+        severity: Severity.notice,
+        prefix: prefix,
+        stackTrace: null,
+        dataProvider: dataProvider,
+      ),
+    );
+  }
+
+  /// {@macro en_logger_informational}
+  ///
+  /// {@macro en_logger_lazy_variant}
+  ///
+  /// {@macro en_logger_lazy_message_parameters}
+  ///
+  /// ## Example
+  /// ```dart
+  /// logger.lazyInfo(() => fibonacci(20));
+  /// // fibonacci(20) not called if info is disabled (handler's `can` returns `false`)
+  /// ```
+  void lazyInfo(
+    EnLoggerLazyMessageProvider messageProvider, {
+    String? prefix,
+    EnLoggerLazyDataProvider? dataProvider,
+  }) {
+    _log(
+      _EnLogDataDto(
+        lazyMessage: messageProvider,
+        severity: Severity.informational,
+        prefix: prefix,
+        stackTrace: null,
+        dataProvider: dataProvider,
+      ),
+    );
+  }
+
+  /// {@macro en_logger_debug}
+  ///
+  /// {@macro en_logger_lazy_variant}
+  ///
+  /// {@macro en_logger_lazy_message_parameters}
+  ///
+  /// ## Example
+  /// ```dart
+  /// logger.lazyDebug(() => fibonacci(20)); // fibonacci(20) not called if debug is disabled
+  /// ```
+  void lazyDebug(
+    EnLoggerLazyMessageProvider messageProvider, {
+    String? prefix,
+    EnLoggerLazyDataProvider? dataProvider,
+  }) {
+    _log(
+      _EnLogDataDto(
+        lazyMessage: messageProvider,
+        severity: Severity.debug,
+        prefix: prefix,
+        stackTrace: null,
+        dataProvider: dataProvider,
+      ),
+    );
+  }
+
   void _log(_EnLogDataDto data) {
     _asyncWrite(data);
     return;
@@ -485,14 +735,36 @@ class EnLogger {
   // The write operations of the handlers are managed in a
   // separate task since attachments with unknown sizes might be present.
   Future<void> _asyncWrite(_EnLogDataDto data) async {
+    if (_handlers.isEmpty) {
+      return;
+    }
+
+    final handlersToWrite = _handlers.where(
+      (h) => h.can(
+        severity: data.severity,
+        prefix: data.prefix,
+      ),
+    );
+
+    if (handlersToWrite.isEmpty) {
+      return;
+    }
+
+    final resolvedMessage = data.lazyMessage != null
+        ? (await data.lazyMessage!()).toString()
+        : data.message.toString();
+
+    final resolvedData =
+        data.dataProvider != null ? await data.dataProvider!() : data.data;
+
     final tasks = <Future<void>>[];
 
-    for (final handler in _handlers) {
+    for (final handler in handlersToWrite) {
       FutureOr<void> futureOrWrite() async => handler.write(
-            data.message.toString(),
+            resolvedMessage,
             severity: data.severity,
             prefix: data.prefix,
-            data: data.data,
+            data: resolvedData,
             stackTrace: data.stackTrace,
           );
       tasks.add(Future.sync(futureOrWrite));
@@ -519,6 +791,7 @@ class _EnLoggerInstance extends EnLogger {
       _EnLogDataDto(
         data: data.data,
         message: data.message,
+        lazyMessage: data.lazyMessage,
         // set default prefix
         prefix: prefix ?? data.prefix,
         severity: data.severity,
@@ -531,16 +804,32 @@ class _EnLoggerInstance extends EnLogger {
 
 class _EnLogDataDto {
   const _EnLogDataDto({
-    required this.message,
     required this.severity,
     required this.prefix,
     required this.stackTrace,
-    required this.data,
-  });
+    this.data,
+    this.dataProvider,
+    this.message,
+    this.lazyMessage,
+  }) : assert(
+          (message != null) != (lazyMessage != null),
+          'Exactly one of message or lazyMessage must be set',
+        );
 
-  final Object message;
+  /// Eager message. Null when [lazyMessage] is set.
+  final Object? message;
+
+  /// Lazy message. Evaluated only when the handler actually writes.
+  /// Null when [message] is set.
+  final EnLoggerLazyMessageProvider? lazyMessage;
+
   final Severity severity;
+
   final String? prefix;
+
   final StackTrace? stackTrace;
+
   final List<EnLoggerData>? data;
+
+  final EnLoggerLazyDataProvider? dataProvider;
 }

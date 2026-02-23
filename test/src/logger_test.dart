@@ -5,8 +5,6 @@ import 'package:mocktail/mocktail.dart';
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
 
-// TODO(mattia): lazy that throws
-
 class _MockHandler extends Mock implements EnLoggerHandler {}
 
 class _MockObject extends Mock implements Object {
@@ -34,20 +32,6 @@ class _NoOpEnHandler extends EnLoggerHandler {
     return;
   }
 }
-
-/* class _HandlerThatCannotWrite extends EnLoggerHandler {
-  @override
-  bool can(Severity severity) => false;
-
-  @override
-  void write(
-    String message, {
-    required Severity severity,
-    String? prefix,
-    StackTrace? stackTrace,
-    List<EnLoggerData>? data,
-  }) {}
-} */
 
 void main() {
   group(
@@ -781,6 +765,28 @@ void main() {
           ).called(1);
         },
       );
+
+      test('should ignore errors', () async {
+        registerFallbackValue(Severity.debug);
+
+        final mockHandler = _MockHandler();
+        when(
+          () => mockHandler.can(
+            severity: any(named: 'severity'),
+            prefix: any(named: 'prefix'),
+          ),
+        ).thenReturn(true);
+
+        final logger = EnLogger()..addHandler(mockHandler);
+
+        Future<void> callback() async {
+          logger.lazyDebug(() => throw Exception('error'));
+          await Future<void>.delayed(Duration.zero);
+          return Future<void>.value();
+        }
+
+        await expectLater(callback(), completion(isA<void>()));
+      });
     },
   );
 }

@@ -51,6 +51,17 @@ void main(List<String> args) async {
       'error',
       prefix: 'Custom prefix',
     );
+
+  // Lazy: closure is only run if at least one handler will write
+  // (e.g. can(severity) is true)
+  logger
+    ..lazyDebug(() => 'expensive debug message')
+    ..lazyError(() => 'error from sync computation')
+    // lazy callback can be asynchronous
+    ..lazyInfo(() async {
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      return 'heavy computation';
+    });
 }
 
 class SentryHandler extends EnLoggerHandler {

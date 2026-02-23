@@ -87,6 +87,22 @@ instLogger.error(
 ); // [Custom prefix] a debug message
 ```
 
+### Lazy messages
+
+Lazy messages are not evaluated until at least one handler is going to write them.
+Use them to avoid expensive computations when a log level is disabled (e.g. in production, where debug is often turned off).
+
+The message closure is only called when at least one handler returns `true` from `can(severity)` for that log.
+
+```dart
+logger.lazyDebug(() => 'a lazy debug message');
+// The closure is not run if debug is disabled (every handler's `can` returns `false`)
+```
+
+By default, `can` returns `true` for every handler, so all log levels are written unless you override it.
+
+The message callbacks (e.g. the closure passed to `lazyDebug`) may be asynchronous. Handle exceptions inside the callback, otherwise they are ignored.
+
 ### PrinterHandler
 
 A default Develop console handler colored.

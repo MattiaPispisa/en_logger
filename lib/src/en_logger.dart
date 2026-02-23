@@ -36,8 +36,11 @@ typedef EnLoggerLazyDataProvider = EnLoggerLazyProvider<List<EnLoggerData>>;
 ///   ..addHandlers([
 ///     PrinterHandler(),
 ///   ])
-///   ..debug('a debug message',prefix: 'API Repository');
+///   ..debug('a debug message',prefix: 'API Repository')
 /// // [API_REPOSITORY] a debug message
+///   ..lazyDebug(() => 'a lazy debug message', prefix: 'API Repository');
+/// // [API_REPOSITORY] a lazy debug message 
+/// // evaluated only when at least one handler will write (can returns true)
 /// ```
 /// {@endtemplate}
 class EnLogger {
@@ -728,7 +731,7 @@ class EnLogger {
   }
 
   void _log(_EnLogDataDto data) {
-    _asyncWrite(data);
+    _asyncWrite(data).ignore();
     return;
   }
 

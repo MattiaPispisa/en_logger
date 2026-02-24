@@ -161,7 +161,7 @@ PrinterColor.custom(schema: '\x1B[31m')
 
 1. Create a custom handler that extends `EnLoggerHandler`;
 
-1. Override `write` method with your custom write operation.
+2. Override `write` method with your custom write operation.
 
 ```dart
 class FileHandler extends EnLoggerHandler {
@@ -172,7 +172,7 @@ class FileHandler extends EnLoggerHandler {
 }
 ```
 
-1. Override `can` method to filter logs to complete skip the log evaluation.
+3. Override `can` method to filter logs to complete skip the log evaluation.
 ```dart
 @override
 bool can({required Severity severity, String? prefix}) {

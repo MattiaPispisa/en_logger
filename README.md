@@ -103,6 +103,8 @@ By default, `can` returns `true` for every handler, so all log levels are writte
 
 The message callbacks (e.g. the closure passed to `lazyDebug`) may be asynchronous. Handle exceptions inside the callback, otherwise they are ignored.
 
+### Closing the logger
+
 ### PrinterHandler
 
 A default Develop console handler colored.

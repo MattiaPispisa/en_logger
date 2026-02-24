@@ -336,7 +336,8 @@ void main() {
       );
 
       test(
-        'should handle EnLogger instances correctly',
+        'should handle EnLogger instances correctly'
+        ' even without prefix override',
         () {
           registerFallbackValue(Severity.debug);
 
@@ -431,6 +432,42 @@ void main() {
           );
         },
       );
+
+      test('should handle nested instances correctly', () {
+        registerFallbackValue(Severity.debug);
+
+        final mockHandler = _MockHandler();
+        when(
+          () => mockHandler.can(
+            severity: any(named: 'severity'),
+            prefix: any(named: 'prefix'),
+          ),
+        ).thenReturn(true);
+
+        final logger = EnLogger()..addHandler(mockHandler);
+
+        final instance = logger.getConfiguredInstance(prefix: 'prefix')
+          ..debug('debug');
+
+        instance.getConfiguredInstance(prefix: 'prefix2').debug('debug2');
+
+        verify(
+          () => mockHandler.write(
+            'debug',
+            stackTrace: any(named: 'stackTrace'),
+            severity: Severity.debug,
+            prefix: 'prefix',
+          ),
+        ).called(1);
+        verify(
+          () => mockHandler.write(
+            'debug2',
+            stackTrace: any(named: 'stackTrace'),
+            severity: Severity.debug,
+            prefix: 'prefix2',
+          ),
+        ).called(1);
+      });
 
       test(
         'should handle EnLogger instances correctly',

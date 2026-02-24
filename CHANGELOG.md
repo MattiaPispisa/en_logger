@@ -1,3 +1,10 @@
+## [1.3.0]
+
+### Added
+
+- Added `lazy` behavior to `EnLogger`
+- Added `dispose` and `close` methods to `EnLogger`
+
 ## [1.2.1] - 2026-01-17
 
 ### Changed

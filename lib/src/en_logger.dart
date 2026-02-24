@@ -73,17 +73,31 @@ class EnLogger {
     );
   }
 
-  const EnLogger._({
+  EnLogger._({
     required List<EnLoggerHandler> handlers,
     required PrefixFormat? defaultPrefixFormat,
     required String? prefix,
   })  : _handlers = handlers,
         _defaultPrefixFormat = defaultPrefixFormat,
-        _prefix = prefix;
+        _prefix = prefix,
+        _closed = false,
+        _instances = {},
+        _pendingTasks = {};
 
   final List<EnLoggerHandler> _handlers;
   final PrefixFormat? _defaultPrefixFormat;
   final String? _prefix;
+
+  bool _closed;
+
+  /// Whether the logger is closed ([close] has been **called**).
+  bool get closed => _closed;
+
+  /// Set of instances created ([getConfiguredInstance]) from this logger.
+  final Set<EnLogger> _instances;
+
+  /// Set of pending tasks to write logs.
+  final Set<Future<void>> _pendingTasks;
 
   /// Adds a new [handler] to process log messages.
   ///
@@ -186,11 +200,13 @@ class EnLogger {
   EnLogger getConfiguredInstance({
     String? prefix,
   }) {
-    return EnLogger._(
+    final instance = EnLogger._(
       prefix: prefix ?? _prefix,
       defaultPrefixFormat: _defaultPrefixFormat?.copyWith(),
       handlers: List.of(_handlers),
     );
+    _instances.add(instance);
+    return instance;
   }
 
   /// {@template en_logger_emergency}
@@ -745,8 +761,60 @@ class EnLogger {
     );
   }
 
+  /// Closes the logger.
+  ///
+  /// Waits for all pending "write" operations
+  /// before closing the logger.
+  ///
+  /// Clear every handler and created instances.
+  ///
+  /// Use [closed] to check if the logger has been requested to close.
+  ///
+  /// ## Example:
+  /// ```dart
+  /// final logger = EnLogger()..addHandler(PrinterHandler())..lazyDebug(() {
+  ///   final heavyLog = await compute();
+  ///   return heavyLog.toString();
+  /// });
+  /// await logger.close(); // waits for the heavy log to be written then close the logger
+  /// logger.debug('message'); // logger is closed, so this message won't be written
+  /// ```
+  Future<void> close() async {
+    if (_closed) {
+      return;
+    }
+
+    _closed = true;
+
+    if (_pendingTasks.isNotEmpty) {
+      await Future.wait(_pendingTasks);
+    }
+
+    _handlers.clear();
+    await Future.wait(_instances.map((i) => i.close()));
+    _instances.clear();
+  }
+
+  /// Disposes the logger.
+  ///
+  /// Synchronous version of [close] that:
+  /// - **doesn't wait** for the completion of the pending tasks;
+  /// - **ignores** the result of the [close].
+  void dispose() {
+    close().ignore();
+  }
+
   void _log(_EnLogDataDto data) {
-    _asyncWrite(data).ignore();
+    if (_closed) {
+      return;
+    }
+
+    final task = _asyncWrite(data);
+    _pendingTasks.add(task);
+
+    task.whenComplete(() {
+      _pendingTasks.remove(task);
+    }).ignore();
     return;
   }
 

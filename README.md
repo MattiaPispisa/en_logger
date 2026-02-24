@@ -172,6 +172,17 @@ class FileHandler extends EnLoggerHandler {
 }
 ```
 
+1. Override `can` method to filter logs to complete skip the log evaluation.
+```dart
+@override
+bool can({required Severity severity, String? prefix}) {
+  if (isProduction) {
+    return severity.atLeastError; // only error and above are evaluated and written
+  }
+  return true; // every log is evaluated and written (default behavior)
+}
+```
+
 Some examples are shown in the [example](./example/main.dart) project.
 
 

@@ -32,7 +32,6 @@ To see these features in action, check out the [example project](./example/main.
     - [Instances](#instances)
     - [Lazy messages](#lazy-messages)
     - [Closing the logger](#closing-the-logger)
-    - [Closing the logger](#closing-the-logger-1)
     - [PrinterHandler](#printerhandler)
     - [CustomHandler](#customhandler)
 
@@ -114,8 +113,6 @@ logger.lazyDebug(() => 'a lazy debug message');
 By default, `can` returns `true` for every handler, so all log levels are written unless you override it.
 
 The message callbacks (e.g. the closure passed to `lazyDebug`) may be asynchronous. Handle exceptions inside the callback, otherwise they are ignored.
-
-### Closing the logger
 
 ### Closing the logger
 

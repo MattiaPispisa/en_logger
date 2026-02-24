@@ -8,22 +8,33 @@
 [![license][license_badge]][license_link]
 [![pub publisher][pub_publisher_badge]][pub_publisher_link]
 
-`EnLogger` allows you to write log messages according to your needs without restricting you to
-writing messages to the debug console or other systems. It maintains a list of `EnLoggerHandlers`
-internally. You can implement your own EnLoggerHandler based on your specific requirements. Each
-time you want to log a message with `EnLogger`, each `EnLoggerHandler` will be invoked to perform
-the write operation.
+Welcome to **EnLogger**—a highly flexible and extensible logging system designed to adapt to your application's unique needs. 
 
-- If you need your system to write logs to a file, implement an EnLoggerHandler that performs the write operation to a file.
+Instead of restricting you to the standard debug console, `EnLogger` acts as a central hub. It broadcasts your log messages to a customizable list of `EnLoggerHandler`s. You simply log your message once, and let your attached handlers decide where and how that data is processed.
 
-- If you want to send logs to Sentry, implement an EnLoggerHandler that maintains an instance of Sentry internally. Each time a log is written, call the write method of Sentry.
+**Key Features:**
 
-`PrinterHandler` is an `EnLoggerHandler` provided within the library that allows you to write
-colored messages to the developer console.
+* **Plug-and-Play Architecture:** **Log once, write anywhere**. You can easily implement custom handlers based on your specific requirements:
+  * *Need local persistence?* Implement a handler that writes logs to a local file.
+  * *Need remote crash reporting?* Create a handler that pipes messages directly to Sentry, Crashlytics, or Datadog.
+* **Lazy Evaluation:** Boost your app's performance with "lazy" logging. Wrap expensive string interpolations or data serializations in closures; if the log level is disabled, the computation is completely skipped (see the [Lazy messages](#lazy-messages) section for details).
+* **Syslog Standards:** All log operations strictly adhere to the standard syslog severity levels (Emergency, Alert, Critical, Error, Warning, Notice, Info, Debug).
+* **Ready-to-use Console Logger:** Get started immediately with the included `PrinterHandler`, which outputs beautifully colored and formatted messages straight to your developer console.
 
-Some examples are shown in the [example](./example/main.dart) project.
+To see these features in action, check out the [example project](./example/main.dart).
 
-The logs adhere to the syslog severity levels.
+- [En Logger](#en-logger)
+  - [Installation](#installation)
+  - [Configuration](#configuration)
+    - [Fast setup](#fast-setup)
+    - [Prefix](#prefix)
+    - [Data](#data)
+    - [Instances](#instances)
+    - [Lazy messages](#lazy-messages)
+    - [Closing the logger](#closing-the-logger)
+    - [PrinterHandler](#printerhandler)
+    - [CustomHandler](#customhandler)
+
 
 ## Installation
 
@@ -87,6 +98,45 @@ instLogger.error(
 ); // [Custom prefix] a debug message
 ```
 
+### Lazy messages
+
+Lazy messages are not evaluated until at least one handler is going to write them.
+Use them to avoid expensive computations when a log level is disabled (e.g. in production, where debug is often turned off).
+
+The message closure is only called when at least one handler returns `true` from `can(severity)` for that log.
+
+```dart
+logger.lazyDebug(() => 'a lazy debug message');
+// The closure is not run if debug is disabled (every handler's `can` returns `false`)
+```
+
+By default, `can` returns `true` for every handler, so all log levels are written unless you override it.
+
+The message callbacks (e.g. the closure passed to `lazyDebug`) may be asynchronous. Handle exceptions inside the callback, otherwise they are ignored.
+
+### Closing the logger
+
+When you are done using an `EnLogger` instance, you should clean up its resources. `EnLogger` provides a graceful shutdown mechanism that safely stops accepting new logs and **waits for any pending asynchronous writes or lazy evaluations to finish** before clearing its handlers, ensuring no data is lost.
+
+You can trigger this shutdown using two methods depending on your architectural needs:
+
+* **`close()`**: The preferred, asynchronous method. You can `await` it to guarantee all pending logs have been fully processed and written before proceeding.
+* **`dispose()`**: A synchronous wrapper around `close()`. It immediately marks the logger as closed and handles the graceful shutdown in the background (fire-and-forget).
+
+*Note: Both methods are safe to call multiple times (idempotent) and automatically cascade the shutdown to any child instances created via `getConfiguredInstance()`.*
+
+```dart
+// Asynchronous (Graceful Shutdown)
+await logger.close();
+
+// Synchronous (e.g., inside Flutter lifecycle)
+@override
+void dispose() {
+  logger.dispose();
+  super.dispose();
+}
+```
+
 ### PrinterHandler
 
 A default Develop console handler colored.
@@ -108,7 +158,7 @@ PrinterColor.custom(schema: '\x1B[31m')
 
 1. Create a custom handler that extends `EnLoggerHandler`;
 
-1. Override `write` method with your custom write operation.
+2. Override `write` method with your custom write operation.
 
 ```dart
 class FileHandler extends EnLoggerHandler {
@@ -116,6 +166,17 @@ class FileHandler extends EnLoggerHandler {
   void write(String message) {
     _logToFile(message);
   }
+}
+```
+
+3. Override `can` method to filter logs to complete skip the log evaluation.
+```dart
+@override
+bool can({required Severity severity, String? prefix}) {
+  if (isProduction) {
+    return severity.atLeastError; // only error and above are evaluated and written
+  }
+  return true; // every log is evaluated and written (default behavior)
 }
 ```
 

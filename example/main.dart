@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print just for the example
+
 import 'dart:convert';
 
 import 'package:en_logger/en_logger.dart';
@@ -51,6 +53,26 @@ void main(List<String> args) async {
       'error',
       prefix: 'Custom prefix',
     );
+
+  // Lazy: closure is only run if at least one handler will write
+  // (e.g. can(severity) is true)
+  logger
+    ..lazyDebug(() => 'expensive debug message')
+    ..lazyError(() => 'error from sync computation')
+    // lazy callback can be asynchronous
+    ..lazyInfo(() async {
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      return 'heavy computation';
+    });
+
+  // close the logger
+  // wait for all pending logs to be written before closing the logger
+  await logger.close();
+
+  // logger is closed, so this message won't be written
+  logger.debug('a debug message');
+
+  print(logger.closed); // true
 }
 
 class SentryHandler extends EnLoggerHandler {

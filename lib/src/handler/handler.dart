@@ -54,14 +54,24 @@ abstract class EnLoggerHandler {
   /// If not set, the logger's default prefix format will be used.
   PrefixFormat? prefixFormat;
 
+  /// Whether this handler should process the log for the given [severity].
+  ///
+  /// When `false`, [write] is not called and lazy message is not evaluated.
+  /// Override to filter by level
+  /// (e.g. in production only log error and above).
+  ///
+  /// Default is `true` (handler always [write]s).
+  bool can({required Severity severity, String? prefix}) => true;
+
   /// Writes a log message.
   ///
-  /// This method is called by [EnLogger] whenever a log message
-  /// needs to be processed.
-  /// Implement this method to define how your handler processes log messages.
+  /// This method is called by [EnLogger] only when [can] returns true for
+  /// the log severity. Implement this method to define how your handler
+  /// processes log messages.
   ///
   /// ## Parameters
-  /// [message] - The content to show.
+  /// [message] - The content to show (already resolved; lazy evaluation
+  /// is done at logger level when [can] is true for at least one handler).
   ///
   /// [severity] - The severity level of the log message.
   ///

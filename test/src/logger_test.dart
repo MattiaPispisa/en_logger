@@ -341,6 +341,45 @@ void main() {
           registerFallbackValue(Severity.debug);
 
           final mockHandler = _MockHandler();
+          when(
+            () => mockHandler.can(
+              severity: any(named: 'severity'),
+              prefix: any(named: 'prefix'),
+            ),
+          ).thenReturn(true);
+
+          final logger = EnLogger();
+
+          // debug is called from a new instance with default prefix "prefix"
+          logger.getConfiguredInstance()
+            ..addHandler(mockHandler)
+            ..debug('debug');
+          verify(
+            () => mockHandler.write(
+              'debug',
+              stackTrace: any(named: 'stackTrace'),
+              severity: Severity.debug,
+            ),
+          ).called(1);
+
+          // no prefix is passed and there isn't a default one
+          logger.debug('debug');
+          verifyNever(
+            () => mockHandler.write(
+              'debug',
+              stackTrace: any(named: 'stackTrace'),
+              severity: Severity.debug,
+            ),
+          );
+        },
+      );
+
+      test(
+        'should handle EnLogger instances correctly',
+        () {
+          registerFallbackValue(Severity.debug);
+
+          final mockHandler = _MockHandler();
           final secondMockHandler = _MockHandler();
 
           when(
@@ -465,8 +504,7 @@ void main() {
             ),
           ).thenReturn(true);
 
-          final logger = EnLogger()
-            ..addHandler(mockHandler)
+          final logger = EnLogger(handlers: [mockHandler])
             ..lazyDebug(() => 'hy');
 
           await Future<void>.delayed(Duration.zero);

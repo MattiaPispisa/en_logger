@@ -39,7 +39,7 @@ typedef EnLoggerLazyDataProvider = EnLoggerLazyProvider<List<EnLoggerData>>;
 ///   ..debug('a debug message',prefix: 'API Repository')
 /// // [API_REPOSITORY] a debug message
 ///   ..lazyDebug(() => 'a lazy debug message', prefix: 'API Repository');
-/// // [API_REPOSITORY] a lazy debug message 
+/// // [API_REPOSITORY] a lazy debug message
 /// // evaluated only when at least one handler will write (can returns true)
 /// ```
 /// {@endtemplate}
@@ -57,20 +57,33 @@ class EnLogger {
   /// have their own prefixFormat configured.
   ///
   /// {@macro en_logger}
-  EnLogger({
+  factory EnLogger({
     List<EnLoggerHandler>? handlers,
     PrefixFormat? defaultPrefixFormat,
-  })  : _handlers = handlers
-                ?.map(
-                  (h) =>
-                      h..prefixFormat = h.prefixFormat ?? defaultPrefixFormat,
-                )
-                .toList() ??
-            <EnLoggerHandler>[],
-        _defaultPrefixFormat = defaultPrefixFormat;
+  }) {
+    return EnLogger._(
+      handlers: handlers
+              ?.map(
+                (h) => h..prefixFormat ??= defaultPrefixFormat,
+              )
+              .toList() ??
+          <EnLoggerHandler>[],
+      defaultPrefixFormat: defaultPrefixFormat,
+      prefix: null,
+    );
+  }
+
+  const EnLogger._({
+    required List<EnLoggerHandler> handlers,
+    required PrefixFormat? defaultPrefixFormat,
+    required String? prefix,
+  })  : _handlers = handlers,
+        _defaultPrefixFormat = defaultPrefixFormat,
+        _prefix = prefix;
 
   final List<EnLoggerHandler> _handlers;
   final PrefixFormat? _defaultPrefixFormat;
+  final String? _prefix;
 
   /// Adds a new [handler] to process log messages.
   ///
@@ -170,9 +183,11 @@ class EnLogger {
   /// // Original logger still works without prefix
   /// logger.debug('a debug message'); // a debug message
   /// ```
-  EnLogger getConfiguredInstance({String? prefix}) {
-    return _EnLoggerInstance(
-      prefix: prefix,
+  EnLogger getConfiguredInstance({
+    String? prefix,
+  }) {
+    return EnLogger._(
+      prefix: prefix ?? _prefix,
       defaultPrefixFormat: _defaultPrefixFormat?.copyWith(),
       handlers: List.of(_handlers),
     );
@@ -745,7 +760,7 @@ class EnLogger {
     final handlersToWrite = _handlers.where(
       (h) => h.can(
         severity: data.severity,
-        prefix: data.prefix,
+        prefix: data.prefix ?? _prefix,
       ),
     );
 
@@ -766,7 +781,7 @@ class EnLogger {
       FutureOr<void> futureOrWrite() async => handler.write(
             resolvedMessage,
             severity: data.severity,
-            prefix: data.prefix,
+            prefix: data.prefix ?? _prefix,
             data: resolvedData,
             stackTrace: data.stackTrace,
           );
@@ -774,33 +789,6 @@ class EnLogger {
     }
 
     await Future.wait(tasks);
-    return;
-  }
-}
-
-/// A pre-configured instance of the logger.
-class _EnLoggerInstance extends EnLogger {
-  _EnLoggerInstance({
-    this.prefix,
-    super.handlers,
-    super.defaultPrefixFormat,
-  });
-
-  final String? prefix;
-
-  @override
-  void _log(_EnLogDataDto data) {
-    _asyncWrite(
-      _EnLogDataDto(
-        data: data.data,
-        message: data.message,
-        lazyMessage: data.lazyMessage,
-        // set default prefix
-        prefix: prefix ?? data.prefix,
-        severity: data.severity,
-        stackTrace: data.stackTrace,
-      ),
-    );
     return;
   }
 }

@@ -787,7 +787,7 @@ class EnLogger {
     _closed = true;
 
     if (_pendingTasks.isNotEmpty) {
-      await Future.wait(_pendingTasks);
+      await Future.wait(_pendingTasks.map((t) => t.catchError((_) {})));
     }
 
     _handlers.clear();

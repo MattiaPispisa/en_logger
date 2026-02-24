@@ -855,7 +855,10 @@ void main() {
         final logger = EnLogger()..addHandler(mockHandler);
 
         Future<void> callback() async {
-          logger.lazyDebug(() => throw Exception('error'));
+          logger.lazyDebug(() async {
+            await Future<void>.delayed(Duration.zero);
+            throw Exception('error');
+          });
           await Future<void>.delayed(Duration.zero);
           return Future<void>.value();
         }
@@ -1019,6 +1022,31 @@ void main() {
 
         await expectLater(logger.close(), completes);
         await expectLater(logger.close(), completes);
+
+        expect(logger.closed, isTrue);
+      });
+
+      test(
+          'close should complete even if a lazy evaluation throws an exception',
+          () async {
+        registerFallbackValue(Severity.debug);
+
+        final mockHandler = _MockHandler();
+        when(
+          () => mockHandler.can(
+            severity: any(named: 'severity'),
+            prefix: any(named: 'prefix'),
+          ),
+        ).thenReturn(true);
+
+        final logger = EnLogger()
+          ..addHandler(mockHandler)
+          ..lazyDebug(() async {
+            await Future<void>.delayed(Duration.zero);
+            throw Exception('Simulated lazy evaluation error');
+          });
+
+        await expectLater(logger.close(), completion(isA<void>()));
 
         expect(logger.closed, isTrue);
       });

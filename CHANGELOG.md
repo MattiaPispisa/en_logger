@@ -5,6 +5,10 @@
 - Added `lazy` behavior to `EnLogger`
 - Added `dispose` and `close` methods to `EnLogger`
 
+### Changed
+
+- chore: improved documentation (README and code documentation)
+
 ## [1.2.1] - 2026-01-17
 
 ### Changed

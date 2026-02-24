@@ -862,6 +862,166 @@ void main() {
 
         await expectLater(callback(), completion(isA<void>()));
       });
+
+      test('close should ignore new logs', () async {
+        registerFallbackValue(Severity.debug);
+
+        final mockHandler = _MockHandler();
+        when(
+          () => mockHandler.can(
+            severity: any(named: 'severity'),
+            prefix: any(named: 'prefix'),
+          ),
+        ).thenReturn(true);
+
+        final logger = EnLogger()..addHandler(mockHandler);
+
+        await logger.close();
+
+        logger
+          ..debug('should be ignored')
+          ..lazyDebug(() => 'should be ignored');
+
+        await Future<void>.delayed(Duration.zero);
+
+        verifyNever(
+          () => mockHandler.write(
+            any(),
+            severity: any(named: 'severity'),
+            prefix: any(named: 'prefix'),
+            stackTrace: any(named: 'stackTrace'),
+            data: any(named: 'data'),
+          ),
+        );
+      });
+
+      test('close should await pending lazy evaluations', () async {
+        registerFallbackValue(Severity.debug);
+
+        final mockHandler = _MockHandler();
+        when(
+          () => mockHandler.can(
+            severity: any(named: 'severity'),
+            prefix: any(named: 'prefix'),
+          ),
+        ).thenReturn(true);
+
+        final logger = EnLogger()..addHandler(mockHandler);
+
+        final completer = Completer<String>();
+
+        // Start a lazy log that is delayed by the completer
+        logger.lazyDebug(() => completer.future);
+
+        final closeFuture = logger.close();
+
+        // Ensure close is pending
+        var isCloseCompleted = false;
+        closeFuture.whenComplete(() => isCloseCompleted = true).ignore();
+
+        await Future<void>.delayed(Duration.zero);
+        expect(isCloseCompleted, isFalse);
+
+        // Complete the lazy evaluation
+        completer.complete('delayed log');
+
+        // Now await the close
+        await closeFuture;
+
+        expect(isCloseCompleted, isTrue);
+
+        verify(
+          () => mockHandler.write(
+            'delayed log',
+            severity: Severity.debug,
+            prefix: any(named: 'prefix'),
+            stackTrace: any(named: 'stackTrace'),
+            data: any(named: 'data'),
+          ),
+        ).called(1);
+      });
+
+      test('close should cascade to configured instances', () async {
+        registerFallbackValue(Severity.debug);
+
+        final mockHandler = _MockHandler();
+        when(
+          () => mockHandler.can(
+            severity: any(named: 'severity'),
+            prefix: any(named: 'prefix'),
+          ),
+        ).thenReturn(true);
+
+        final logger = EnLogger()..addHandler(mockHandler);
+        final childLogger = logger.getConfiguredInstance(prefix: 'child');
+
+        await logger.close();
+
+        // The child logger should also be disposed and ignore new logs
+        childLogger.debug('should be ignored by child');
+
+        await Future<void>.delayed(Duration.zero);
+
+        verifyNever(
+          () => mockHandler.write(
+            any(),
+            severity: any(named: 'severity'),
+            prefix: any(named: 'prefix'),
+            stackTrace: any(named: 'stackTrace'),
+            data: any(named: 'data'),
+          ),
+        );
+
+        expect(childLogger.closed, isTrue);
+      });
+
+      test('dispose should work synchronously and initiate closing', () async {
+        registerFallbackValue(Severity.debug);
+
+        final mockHandler = _MockHandler();
+        when(
+          () => mockHandler.can(
+            severity: any(named: 'severity'),
+            prefix: any(named: 'prefix'),
+          ),
+        ).thenReturn(true);
+
+        final logger = EnLogger()
+          ..addHandler(mockHandler)
+          ..dispose();
+
+        expect(logger.closed, isTrue);
+
+        logger.debug('should be ignored');
+
+        await Future<void>.delayed(Duration.zero);
+
+        verifyNever(
+          () => mockHandler.write(
+            any(),
+            severity: any(named: 'severity'),
+            prefix: any(named: 'prefix'),
+            stackTrace: any(named: 'stackTrace'),
+            data: any(named: 'data'),
+          ),
+        );
+      });
+
+      test(
+          'multiple calls to close and dispose should do nothing and not throw',
+          () async {
+        final logger = EnLogger();
+
+        expect(logger.dispose, returnsNormally);
+        expect(logger.closed, isTrue);
+
+        expect(logger.dispose, returnsNormally);
+
+        await expectLater(logger.close(), completes);
+        await expectLater(logger.close(), completes);
+
+        expect(logger.closed, isTrue);
+      });
     },
   );
 }

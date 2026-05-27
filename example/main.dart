@@ -91,7 +91,12 @@ class SentryHandler extends EnLoggerHandler {
   void write(
     String message, {
     required Severity severity,
+    required DateTime timestamp,
+    required String eventId,
+    required Map<String, dynamic> tags,
+    required int sequenceNumber,
     String? prefix,
+    Object? error,
     StackTrace? stackTrace,
     List<EnLoggerData>? data,
   }) {

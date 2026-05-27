@@ -47,7 +47,14 @@ void main() {
       test(
         'should write message correctly',
         () {
-          handler.write('error', severity: Severity.error);
+          handler.write(
+            'error',
+            severity: Severity.error,
+            timestamp: DateTime(2025),
+            eventId: 'id',
+            tags: {},
+            sequenceNumber: 0,
+          );
 
           expect(message, '${const PrinterColor.red().schema}error\x1B[0m');
         },
@@ -56,7 +63,15 @@ void main() {
       test(
         'should write message with prefix correctly',
         () {
-          handler.write('error', severity: Severity.error, prefix: 'Prefix');
+          handler.write(
+            'error',
+            severity: Severity.error,
+            prefix: 'Prefix',
+            timestamp: DateTime(2025),
+            eventId: 'id',
+            tags: {},
+            sequenceNumber: 0,
+          );
 
           expect(
             message,
@@ -81,7 +96,15 @@ void main() {
             }) {
               message = content;
             },
-          )..write('error', severity: Severity.error, prefix: 'Prefix');
+          )..write(
+              'error',
+              severity: Severity.error,
+              prefix: 'Prefix',
+              timestamp: DateTime(2025),
+              eventId: 'id',
+              tags: {},
+              sequenceNumber: 0,
+            );
 
           expect(
             message,
@@ -99,6 +122,10 @@ void main() {
           ..write(
             'informational',
             severity: Severity.informational,
+            timestamp: DateTime(2025),
+            eventId: 'id',
+            tags: {},
+            sequenceNumber: 0,
           );
 
         expect(
@@ -106,7 +133,14 @@ void main() {
           '${const PrinterColor.magenta().schema}informational\x1B[0m',
         );
 
-        handler.write('debug', severity: Severity.debug);
+        handler.write(
+          'debug',
+          severity: Severity.debug,
+          timestamp: DateTime(2025),
+          eventId: 'id',
+          tags: {},
+          sequenceNumber: 0,
+        );
         expect(
           message,
           '\x1B[38mdebug\x1B[0m',
@@ -129,7 +163,14 @@ void main() {
           },
           writeIfContains: ['must be present', 'can be present'],
           writeIfNotContains: ['hide', 'remove'],
-        )..write('must be present some text', severity: Severity.debug);
+        )..write(
+            'must be present some text',
+            severity: Severity.debug,
+            timestamp: DateTime(2025),
+            eventId: 'id',
+            tags: {},
+            sequenceNumber: 0,
+          );
 
         expect(
           message.contains('must be present some text'),
@@ -139,6 +180,10 @@ void main() {
         handler.write(
           'must be present the remove word',
           severity: Severity.debug,
+          timestamp: DateTime(2025),
+          eventId: 'id',
+          tags: {},
+          sequenceNumber: 0,
         );
         expect(
           message.contains('must be present the remove word'),
@@ -148,6 +193,10 @@ void main() {
         handler.write(
           'must be present the hide word',
           severity: Severity.debug,
+          timestamp: DateTime(2025),
+          eventId: 'id',
+          tags: {},
+          sequenceNumber: 0,
         );
         expect(
           message.contains('must be present the hide word'),
@@ -157,6 +206,10 @@ void main() {
         handler.write(
           'can be present this text',
           severity: Severity.debug,
+          timestamp: DateTime(2025),
+          eventId: 'id',
+          tags: {},
+          sequenceNumber: 0,
         );
         expect(
           message.contains('can be present this text'),
@@ -166,6 +219,10 @@ void main() {
         handler.write(
           'some words',
           severity: Severity.debug,
+          timestamp: DateTime(2025),
+          eventId: 'id',
+          tags: {},
+          sequenceNumber: 0,
         );
         expect(
           message.contains('some words'),

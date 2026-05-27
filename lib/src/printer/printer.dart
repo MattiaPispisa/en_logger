@@ -135,13 +135,19 @@ class PrinterHandler extends EnLoggerHandler {
     _configuration.setSeverityColors(configuration);
   }
 
-  void _prettyPrint(
-    String message,
+  @override
+  void write(
+    String message, {
+    required Severity severity,
+    required DateTime timestamp,
+    required String eventId,
+    required Map<String, dynamic> tags,
+    required int sequenceNumber,
     String? prefix,
-    Severity severity,
+    Object? error,
     StackTrace? stackTrace,
     List<EnLoggerData>? data,
-  ) {
+  }) {
     var prettyMessage = '$message\x1B[0m';
     if (prefixFormat != null && prefix != null) {
       prettyMessage = '${prefixFormat!.format(prefix)} $prettyMessage';
@@ -160,26 +166,11 @@ class PrinterHandler extends EnLoggerHandler {
 
     _logCallback(
       prettyMessage,
-      time: DateTime.now().toUtc(),
+      time: timestamp,
+      sequenceNumber: sequenceNumber,
       level: severity.level,
       stackTrace: stackTrace,
-    );
-  }
-
-  @override
-  void write(
-    String message, {
-    required Severity severity,
-    String? prefix,
-    StackTrace? stackTrace,
-    List<EnLoggerData>? data,
-  }) {
-    return _prettyPrint(
-      message,
-      prefix,
-      severity,
-      stackTrace,
-      data,
+      error: error,
     );
   }
 }

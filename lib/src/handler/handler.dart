@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:en_logger/en_logger.dart';
 
 /// {@template en_logger_handler}
@@ -87,7 +89,12 @@ abstract class EnLoggerHandler {
   void write(
     String message, {
     required Severity severity,
+    required DateTime timestamp,
+    required String eventId,
+    required Map<String, dynamic> tags,
+    required int sequenceNumber,
     String? prefix,
+    Object? error,
     StackTrace? stackTrace,
     List<EnLoggerData>? data,
   });

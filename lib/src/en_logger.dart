@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:en_logger/en_logger.dart';
+
+part '_helper.dart';
 
 /// An async closure that returns a value of type [T].
 /// Used for lazy evaluation in [EnLogger] "lazy" methods.
@@ -60,6 +63,7 @@ class EnLogger {
   factory EnLogger({
     List<EnLoggerHandler>? handlers,
     PrefixFormat? defaultPrefixFormat,
+    Set<Object>? zoneContextKeys,
   }) {
     return EnLogger._(
       handlers: handlers
@@ -70,6 +74,8 @@ class EnLogger {
           <EnLoggerHandler>[],
       defaultPrefixFormat: defaultPrefixFormat,
       prefix: null,
+      zoneContextKeys: zoneContextKeys,
+      sharedState: _EnLoggerSharedState(),
     );
   }
 
@@ -77,16 +83,25 @@ class EnLogger {
     required List<EnLoggerHandler> handlers,
     required PrefixFormat? defaultPrefixFormat,
     required String? prefix,
+    required Set<Object>? zoneContextKeys,
+    required _EnLoggerSharedState sharedState,
   })  : _handlers = handlers,
         _defaultPrefixFormat = defaultPrefixFormat,
         _prefix = prefix,
         _closed = false,
         _instances = {},
-        _pendingTasks = {};
+        _pendingTasks = {},
+        _sharedState = sharedState,
+        _zoneContextKeys = zoneContextKeys ?? {};
 
+  static int _sequenceNumber = 0;
+
+  final _EnLoggerSharedState _sharedState;
   final List<EnLoggerHandler> _handlers;
   final PrefixFormat? _defaultPrefixFormat;
   final String? _prefix;
+
+  final Set<Object> _zoneContextKeys;
 
   bool _closed;
 
@@ -199,11 +214,19 @@ class EnLogger {
   /// ```
   EnLogger getConfiguredInstance({
     String? prefix,
+    Set<Object>? zoneContextKeys,
   }) {
+    final mergedZoneKeys = <Object>{
+      ..._zoneContextKeys,
+      if (zoneContextKeys != null) ...zoneContextKeys,
+    };
+
     final instance = EnLogger._(
       prefix: prefix ?? _prefix,
       defaultPrefixFormat: _defaultPrefixFormat?.copyWith(),
       handlers: List.of(_handlers),
+      zoneContextKeys: mergedZoneKeys,
+      sharedState: _sharedState,
     );
     _instances.add(instance);
     return instance;
@@ -246,18 +269,22 @@ class EnLogger {
   /// );
   /// ```
   void emergency(
-    Object error, {
+    Object message, {
     String? prefix,
+    Object? error,
     StackTrace? stackTrace,
     List<EnLoggerData>? data,
+    Map<String, dynamic>? tags,
   }) {
     _log(
-      _EnLogDataDto(
-        message: error,
+      _BaseEnLogDataDto(
+        message: message,
         severity: Severity.emergency,
         prefix: prefix,
+        error: error,
         stackTrace: stackTrace,
         data: data,
+        tags: tags,
       ),
     );
   }
@@ -282,18 +309,22 @@ class EnLogger {
   /// );
   /// ```
   void alert(
-    Object error, {
+    Object message, {
     String? prefix,
+    Object? error,
     StackTrace? stackTrace,
     List<EnLoggerData>? data,
+    Map<String, dynamic>? tags,
   }) {
     _log(
-      _EnLogDataDto(
-        message: error,
+      _BaseEnLogDataDto(
+        message: message,
         severity: Severity.alert,
         prefix: prefix,
+        error: error,
         stackTrace: stackTrace,
         data: data,
+        tags: tags,
       ),
     );
   }
@@ -318,18 +349,22 @@ class EnLogger {
   /// );
   /// ```
   void critical(
-    Object error, {
+    Object message, {
     String? prefix,
+    Object? error,
     StackTrace? stackTrace,
     List<EnLoggerData>? data,
+    Map<String, dynamic>? tags,
   }) {
     _log(
-      _EnLogDataDto(
-        message: error,
+      _BaseEnLogDataDto(
+        message: message,
         severity: Severity.critical,
         prefix: prefix,
+        error: error,
         stackTrace: stackTrace,
         data: data,
+        tags: tags,
       ),
     );
   }
@@ -358,18 +393,22 @@ class EnLogger {
   /// );
   /// ```
   void error(
-    Object error, {
+    Object message, {
     String? prefix,
+    Object? error,
     StackTrace? stackTrace,
     List<EnLoggerData>? data,
+    Map<String, dynamic>? tags,
   }) {
     _log(
-      _EnLogDataDto(
-        message: error,
+      _BaseEnLogDataDto(
+        message: message,
         severity: Severity.error,
         prefix: prefix,
+        error: error,
         stackTrace: stackTrace,
         data: data,
+        tags: tags,
       ),
     );
   }
@@ -402,14 +441,15 @@ class EnLogger {
     Object message, {
     String? prefix,
     List<EnLoggerData>? data,
+    Map<String, dynamic>? tags,
   }) {
     _log(
-      _EnLogDataDto(
+      _BaseEnLogDataDto(
         message: message,
         severity: Severity.warning,
         prefix: prefix,
-        stackTrace: null,
         data: data,
+        tags: tags,
       ),
     );
   }
@@ -435,14 +475,15 @@ class EnLogger {
     Object message, {
     String? prefix,
     List<EnLoggerData>? data,
+    Map<String, dynamic>? tags,
   }) {
     _log(
-      _EnLogDataDto(
+      _BaseEnLogDataDto(
         message: message,
         severity: Severity.notice,
         prefix: prefix,
-        stackTrace: null,
         data: data,
+        tags: tags,
       ),
     );
   }
@@ -467,14 +508,15 @@ class EnLogger {
     Object message, {
     String? prefix,
     List<EnLoggerData>? data,
+    Map<String, dynamic>? tags,
   }) {
     _log(
-      _EnLogDataDto(
+      _BaseEnLogDataDto(
         message: message,
         severity: Severity.informational,
         prefix: prefix,
-        stackTrace: null,
         data: data,
+        tags: tags,
       ),
     );
   }
@@ -503,14 +545,15 @@ class EnLogger {
     Object message, {
     String? prefix,
     List<EnLoggerData>? data,
+    Map<String, dynamic>? tags,
   }) {
     _log(
-      _EnLogDataDto(
+      _BaseEnLogDataDto(
         message: message,
         severity: Severity.debug,
         prefix: prefix,
-        stackTrace: null,
         data: data,
+        tags: tags,
       ),
     );
   }
@@ -546,16 +589,20 @@ class EnLogger {
   void lazyEmergency(
     EnLoggerLazyMessageProvider messageProvider, {
     String? prefix,
+    Object? error,
     StackTrace? stackTrace,
     EnLoggerLazyDataProvider? dataProvider,
+    Map<String, dynamic>? tags,
   }) {
     _log(
-      _EnLogDataDto(
+      _BaseEnLogDataDto(
         lazyMessage: messageProvider,
         severity: Severity.emergency,
         prefix: prefix,
+        error: error,
         stackTrace: stackTrace,
         dataProvider: dataProvider,
+        tags: tags,
       ),
     );
   }
@@ -574,16 +621,20 @@ class EnLogger {
   void lazyAlert(
     EnLoggerLazyMessageProvider messageProvider, {
     String? prefix,
+    Object? error,
     StackTrace? stackTrace,
     EnLoggerLazyDataProvider? dataProvider,
+    Map<String, dynamic>? tags,
   }) {
     _log(
-      _EnLogDataDto(
+      _BaseEnLogDataDto(
         lazyMessage: messageProvider,
         severity: Severity.alert,
         prefix: prefix,
+        error: error,
         stackTrace: stackTrace,
         dataProvider: dataProvider,
+        tags: tags,
       ),
     );
   }
@@ -602,16 +653,20 @@ class EnLogger {
   void lazyCritical(
     EnLoggerLazyMessageProvider messageProvider, {
     String? prefix,
+    Object? error,
     StackTrace? stackTrace,
     EnLoggerLazyDataProvider? dataProvider,
+    Map<String, dynamic>? tags,
   }) {
     _log(
-      _EnLogDataDto(
+      _BaseEnLogDataDto(
         lazyMessage: messageProvider,
         severity: Severity.critical,
         prefix: prefix,
+        error: error,
         stackTrace: stackTrace,
         dataProvider: dataProvider,
+        tags: tags,
       ),
     );
   }
@@ -630,16 +685,20 @@ class EnLogger {
   void lazyError(
     EnLoggerLazyMessageProvider messageProvider, {
     String? prefix,
+    Object? error,
     StackTrace? stackTrace,
     EnLoggerLazyDataProvider? dataProvider,
+    Map<String, dynamic>? tags,
   }) {
     _log(
-      _EnLogDataDto(
+      _BaseEnLogDataDto(
         lazyMessage: messageProvider,
         severity: Severity.error,
         prefix: prefix,
+        error: error,
         stackTrace: stackTrace,
         dataProvider: dataProvider,
+        tags: tags,
       ),
     );
   }
@@ -669,14 +728,15 @@ class EnLogger {
     EnLoggerLazyMessageProvider messageProvider, {
     String? prefix,
     EnLoggerLazyDataProvider? dataProvider,
+    Map<String, dynamic>? tags,
   }) {
     _log(
-      _EnLogDataDto(
+      _BaseEnLogDataDto(
         lazyMessage: messageProvider,
         severity: Severity.warning,
         prefix: prefix,
-        stackTrace: null,
         dataProvider: dataProvider,
+        tags: tags,
       ),
     );
   }
@@ -696,14 +756,15 @@ class EnLogger {
     EnLoggerLazyMessageProvider messageProvider, {
     String? prefix,
     EnLoggerLazyDataProvider? dataProvider,
+    Map<String, dynamic>? tags,
   }) {
     _log(
-      _EnLogDataDto(
+      _BaseEnLogDataDto(
         lazyMessage: messageProvider,
         severity: Severity.notice,
         prefix: prefix,
-        stackTrace: null,
         dataProvider: dataProvider,
+        tags: tags,
       ),
     );
   }
@@ -723,14 +784,15 @@ class EnLogger {
     EnLoggerLazyMessageProvider messageProvider, {
     String? prefix,
     EnLoggerLazyDataProvider? dataProvider,
+    Map<String, dynamic>? tags,
   }) {
     _log(
-      _EnLogDataDto(
+      _BaseEnLogDataDto(
         lazyMessage: messageProvider,
         severity: Severity.informational,
         prefix: prefix,
-        stackTrace: null,
         dataProvider: dataProvider,
+        tags: tags,
       ),
     );
   }
@@ -749,14 +811,15 @@ class EnLogger {
     EnLoggerLazyMessageProvider messageProvider, {
     String? prefix,
     EnLoggerLazyDataProvider? dataProvider,
+    Map<String, dynamic>? tags,
   }) {
     _log(
-      _EnLogDataDto(
+      _BaseEnLogDataDto(
         lazyMessage: messageProvider,
         severity: Severity.debug,
         prefix: prefix,
-        stackTrace: null,
         dataProvider: dataProvider,
+        tags: tags,
       ),
     );
   }
@@ -804,23 +867,31 @@ class EnLogger {
     close().ignore();
   }
 
-  void _log(_EnLogDataDto data) {
+  void _log(_BaseEnLogDataDto data) {
     if (_closed) {
       return;
     }
 
-    final task = _asyncWrite(data);
-    _pendingTasks.add(task);
+    /// wait for the completion of the previous log task
+    /// to maintain the order of logs
+    final currentTask = _sharedState.lastLogTask.then((_) {
+      return _asyncWrite(data);
+    })
+      ..ignore();
 
-    task.whenComplete(() {
-      _pendingTasks.remove(task);
+    _sharedState.lastLogTask = currentTask;
+
+    _pendingTasks.add(currentTask);
+
+    currentTask.whenComplete(() {
+      _pendingTasks.remove(currentTask);
     }).ignore();
     return;
   }
 
   // The write operations of the handlers are managed in a
   // separate task since attachments with unknown sizes might be present.
-  Future<void> _asyncWrite(_EnLogDataDto data) async {
+  Future<void> _asyncWrite(_BaseEnLogDataDto data) async {
     if (_handlers.isEmpty) {
       return;
     }
@@ -836,22 +907,45 @@ class EnLogger {
       return;
     }
 
-    final resolvedMessage = data.lazyMessage != null
-        ? (await data.lazyMessage!()).toString()
-        : data.message.toString();
+    final tags = <String, dynamic>{};
+    for (final key in _zoneContextKeys) {
+      final value = Zone.current[key];
+      if (value != null) {
+        tags[key is Symbol ? key.name : key.toString()] = value;
+      }
+    }
+    tags.addAll(data.tags ?? {});
 
-    final resolvedData =
-        data.dataProvider != null ? await data.dataProvider!() : data.data;
+    final richData = data.toData(
+      timestamp: DateTime.now(),
+      tags: _sanitizeTags(tags),
+      eventId: _generateUuidV4(),
+      sequenceNumber: _sequenceNumber++,
+    );
+
+    final resolvedMessage = richData.lazyMessage != null
+        ? (await richData.lazyMessage!())
+        : richData.message;
+
+    final resolvedData = richData.dataProvider != null
+        ? await richData.dataProvider!()
+        : richData.data;
 
     final tasks = <Future<void>>[];
 
+    final message = resolvedMessage.toString();
     for (final handler in handlersToWrite) {
       FutureOr<void> futureOrWrite() async => handler.write(
-            resolvedMessage,
-            severity: data.severity,
-            prefix: data.prefix ?? _prefix,
+            message,
+            error: richData.error,
+            severity: richData.severity,
+            prefix: richData.prefix ?? _prefix,
             data: resolvedData,
-            stackTrace: data.stackTrace,
+            stackTrace: richData.stackTrace,
+            eventId: richData.eventId,
+            timestamp: richData.timestamp,
+            tags: richData.tags ?? {},
+            sequenceNumber: richData.sequenceNumber,
           );
       tasks.add(Future.sync(futureOrWrite));
     }
@@ -861,15 +955,21 @@ class EnLogger {
   }
 }
 
-class _EnLogDataDto {
-  const _EnLogDataDto({
+class _EnLoggerSharedState {
+  Future<void> lastLogTask = Future.value();
+}
+
+class _BaseEnLogDataDto {
+  const _BaseEnLogDataDto({
     required this.severity,
-    required this.prefix,
-    required this.stackTrace,
+    this.prefix,
+    this.stackTrace,
+    this.error,
     this.data,
     this.dataProvider,
     this.message,
     this.lazyMessage,
+    this.tags,
   }) : assert(
           (message != null) != (lazyMessage != null),
           'Exactly one of message or lazyMessage must be set',
@@ -886,9 +986,58 @@ class _EnLogDataDto {
 
   final String? prefix;
 
+  final Object? error;
+
   final StackTrace? stackTrace;
 
   final List<EnLoggerData>? data;
 
   final EnLoggerLazyDataProvider? dataProvider;
+
+  final Map<String, dynamic>? tags;
+
+  _EnLogDataDto toData({
+    required Map<String, dynamic> tags,
+    required DateTime timestamp,
+    required String eventId,
+    required int sequenceNumber,
+  }) {
+    return _EnLogDataDto(
+      tags: tags,
+      timestamp: timestamp,
+      eventId: eventId,
+      sequenceNumber: sequenceNumber,
+      message: message,
+      lazyMessage: lazyMessage,
+      severity: severity,
+      prefix: prefix,
+      error: error,
+      stackTrace: stackTrace,
+      data: data,
+      dataProvider: dataProvider,
+    );
+  }
+}
+
+class _EnLogDataDto extends _BaseEnLogDataDto {
+  const _EnLogDataDto({
+    required this.timestamp,
+    required this.eventId,
+    required this.sequenceNumber,
+    required super.severity,
+    super.tags,
+    super.message,
+    super.lazyMessage,
+    super.prefix,
+    super.error,
+    super.stackTrace,
+    super.data,
+    super.dataProvider,
+  });
+
+  final DateTime timestamp;
+
+  final String eventId;
+
+  final int sequenceNumber;
 }

@@ -1,5 +1,6 @@
 {
-    "cSpell.words": [
-        "endtemplate"
-    ]
+  "cSpell.words": [
+    "endtemplate"
+  ],
+  "dart.flutterSdkPath": ".fvm/versions/stable"
 }

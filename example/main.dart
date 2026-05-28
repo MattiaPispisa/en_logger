@@ -1,5 +1,6 @@
-// ignore_for_file: avoid_print just for the example
+// ignore_for_file: avoid_print just for example
 
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:en_logger/en_logger.dart';
@@ -7,24 +8,27 @@ import 'package:sentry/sentry.dart';
 
 void main(List<String> args) async {
   // a custom handler that under the hood use sentry
-  final sentry = await SentryHandler.init();
+  // final sentry = await SentryHandler.init();
 
-  // default printer configured
-  final printer = PrinterHandler()
+  // default handler configured
+  final devLogHandler = DevLogHandler()
     ..configure({
-      Severity.notice: const PrinterColor.green(),
+      Severity.notice: const DevLogColor.green(),
     });
 
   // an enLogger with a default prefix format
   final logger = EnLogger(
+    zoneContextKeys: {#userId},
+    includeCallerInfo: true,
     defaultPrefixFormat: const PrefixFormat(
       startFormat: '[',
       endFormat: ']',
     ),
   )
     ..addHandlers([
-      sentry,
-      printer,
+      // sentry,
+      VerbosePrintHandler(),
+      devLogHandler,
     ])
 
     // debug log
@@ -42,17 +46,25 @@ void main(List<String> args) async {
       ],
     );
 
-  // logger instance with prefix
-  logger.getConfiguredInstance(prefix: 'API Repository')
+  runZoned(
+    () {
+      // In addition to the method tags, the zoneContextKeys
+      // values will be extracted from the zones
 
-    // [API Repository] a debug message
-    ..debug('a debug message')
+      // logger instance with prefix
+      logger.getConfiguredInstance(prefix: 'API Repository')
 
-    // [Custom prefix] a debug message
-    ..error(
-      'error',
-      prefix: 'Custom prefix',
-    );
+        // [API Repository] a debug message
+        ..debug('a debug message')
+
+        // [Custom prefix] a debug message
+        ..error(
+          'error',
+          prefix: 'Custom prefix',
+        );
+    },
+    zoneValues: {#userId: '123'},
+  );
 
   // Lazy: closure is only run if at least one handler will write
   // (e.g. can(severity) is true)
@@ -91,9 +103,16 @@ class SentryHandler extends EnLoggerHandler {
   void write(
     String message, {
     required Severity severity,
+    required DateTime timestamp,
+    required String eventId,
+    required Map<String, dynamic> tags,
+    required int sequenceNumber,
     String? prefix,
+    Object? error,
     StackTrace? stackTrace,
     List<EnLoggerData>? data,
+    String? isolateName,
+    String? callerInfo,
   }) {
     // just a simple example
     // fine tune your implementation...
@@ -102,5 +121,39 @@ class SentryHandler extends EnLoggerHandler {
       return;
     }
     Sentry.captureMessage(message);
+  }
+}
+
+class VerbosePrintHandler extends EnLoggerHandler {
+  @override
+  void write(
+    String message, {
+    required Severity severity,
+    required DateTime timestamp,
+    required String eventId,
+    required Map<String, dynamic> tags,
+    required int sequenceNumber,
+    String? prefix,
+    Object? error,
+    StackTrace? stackTrace,
+    List<EnLoggerData>? data,
+    String? isolateName,
+    String? callerInfo,
+  }) {
+    var content = message;
+    if (prefix != null && prefixFormat != null) {
+      content = '${prefixFormat!.format(prefix)} $content';
+    }
+    final encoded = const JsonEncoder.withIndent('  ').convert({
+      'content': content,
+      'severity': severity.level,
+      'eventId': eventId,
+      'sequenceNumber': sequenceNumber,
+      'timestamp': timestamp.toIso8601String(),
+      'tags': tags,
+      'callerInfo': callerInfo ?? '-',
+      'isolateName': isolateName,
+    });
+    return print(encoded);
   }
 }

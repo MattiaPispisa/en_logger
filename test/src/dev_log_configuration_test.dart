@@ -7,24 +7,24 @@ void main() {
     'PrinterColorConfiguration',
     () {
       test('should configure color for severities', () {
-        final config = PrinterColorConfiguration()
+        final config = DevLogColorConfiguration()
           ..setSeverityColor(
             Severity.emergency,
-            const PrinterColor.magenta(),
+            const DevLogColor.magenta(),
           )
           ..setSeverityColors(
             const {
-              Severity.informational: PrinterColor.red(),
+              Severity.informational: DevLogColor.red(),
             },
           );
 
         expect(
           config.getColor(Severity.emergency).schema,
-          const PrinterColor.magenta().schema,
+          const DevLogColor.magenta().schema,
         );
         expect(
           config.getColor(Severity.informational).schema,
-          const PrinterColor.red().schema,
+          const DevLogColor.red().schema,
         );
       });
     },

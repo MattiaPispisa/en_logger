@@ -1,3 +1,24 @@
+## [2.0.0]
+
+### Added
+
+- **BREAKING:** `Handler.write` now receives additional parameters: `error`, `tags`, `eventId`, `timestamp`, and `sequenceNumber`.
+- **Core Observability Enhancements:** Every log event now automatically generates and forwards the following to the `Handler`:
+  - A unique `eventId`.
+  - A `callerInfo`, where the user call the log method
+  - A `isolateName`, the `debugName` of the isolate where the log method is executed
+  - A `timestamp`, captured immediately before any async queueing or lazy processing.
+  - A globally incrementing `sequenceNumber` to guarantee the absolute chronological creation order of the logs.
+- **Error Disambiguation:** Separated the `error` object from the text `message` for logs with a severity of `error` or higher by introducing a dedicated `error` property.
+- **Tags:** Added `tags`, an optional map of additional encodable key-value pairs to attach to log messages.
+- **Zone Context Extraction:** Added `zoneContextKeys`. `EnLogger` can now automatically extract specified keys from the current `Zone`, merge them with method-specific `tags`, and forward the unified map to the `Handler`.
+
+### Changed
+
+- **Breaking**: Rename ~~PrinterHandler~~ to `DevLogHandler`, ~~PrinterColorConfiguration~~ to `DevLogColorConfiguration`, ~~PrinterColor~~ to `DevLogColor`
+- Preserve logs order (fifo) when lazy methods are used 
+
+
 ## [1.3.0] - 2026-02-24
 
 ### Added

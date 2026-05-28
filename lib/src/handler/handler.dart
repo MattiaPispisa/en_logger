@@ -6,7 +6,7 @@ import 'package:en_logger/en_logger.dart';
 /// ## Description
 /// An [EnLoggerHandler] is the one who will actually handle the log message.
 /// Implement this abstract class to create custom log handlers.
-/// [PrinterHandler] is an example of a [EnLoggerHandler].
+/// [DevLogHandler] is an example of a [EnLoggerHandler].
 /// {@endtemplate}
 ///
 /// {@template en_logger_handler_example}
@@ -78,17 +78,42 @@ abstract class EnLoggerHandler {
   /// [prefix] - Optional message prefix.
   /// May be formatted according to [prefixFormat] if set.
   ///
+  /// [error] - Optional error object associated with the log message.
+  ///
   /// [stackTrace] - Optional stack trace associated with the log message.
   /// Typically provided for error-level messages.
   ///
   /// [data] - Optional list of additional data relating to the message.
   ///
+  /// [tags] - Optional map of additional tags to attach to the log message.
+  ///
+  /// [eventId] - A unique identifier (UUID v4) for this specific log event.
+  ///
+  /// [timestamp] - The exact [DateTime] when the log event was generated.
+  /// Captured immediately upon method call,
+  /// **before any async queueing or processing**.
+  ///
+  /// [sequenceNumber] - A globally incrementing counter starting from 0.
+  /// Guarantees the absolute chronological creation order of logs
+  /// within the app lifecycle.
+  ///
+  /// [isolateName] - The name of the isolate where the log was generated.
+  ///
+  /// [callerInfo] - Indicates the exact location in your source code
+  /// where the log was emitted.
   /// {@macro en_logger_handler_example}
   void write(
     String message, {
     required Severity severity,
+    required DateTime timestamp,
+    required String eventId,
+    required Map<String, dynamic> tags,
+    required int sequenceNumber,
     String? prefix,
+    Object? error,
     StackTrace? stackTrace,
     List<EnLoggerData>? data,
+    String? isolateName,
+    String? callerInfo,
   });
 }

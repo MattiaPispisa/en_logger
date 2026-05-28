@@ -27,10 +27,28 @@ typedef EnLoggerLazyDataProvider = EnLoggerLazyProvider<List<EnLoggerData>>;
 ///
 /// [PrinterHandler] is an example of a [EnLoggerHandler].
 ///
+/// ## Lazy evaluation
+/// The "lazy" variants of the log methods (e.g. [lazyDebug]) accept
+/// closures that are evaluated only when at least one handler
+/// will write the log. This allows to skip expensive computations
+/// when the log level is disabled.
+///
+/// ## Tags & Zones
+/// [EnLogger] can automatically extract contextual data (tags)
+/// from Dart's [Zone.current] and attach them to every log event.
+///
+/// By providing `zoneContextKeys` to the constructor, the logger will capture
+/// only the specified keys from the current execution zone.
+///
+/// Additionally, every logging method accepts its own `tags` parameter.
+/// The handlers will receive a single, merged, and sanitized map
+/// containing both the requested zone tags and the method-specific tags.
+///
 /// ## Example:
 ///
 /// ```dart
 /// final logger = EnLogger(
+///   zoneContextKeys: {#userId, #tenantId},
 ///   defaultPrefixFormat: const PrefixFormat(
 ///     startFormat: '[',
 ///     endFormat: ']',
@@ -38,12 +56,22 @@ typedef EnLoggerLazyDataProvider = EnLoggerLazyProvider<List<EnLoggerData>>;
 /// )
 ///   ..addHandlers([
 ///     PrinterHandler(),
-///   ])
-///   ..debug('a debug message',prefix: 'API Repository')
-/// // [API_REPOSITORY] a debug message
-///   ..lazyDebug(() => 'a lazy debug message', prefix: 'API Repository');
-/// // [API_REPOSITORY] a lazy debug message
-/// // evaluated only when at least one handler will write (can returns true)
+///   ]);
+///
+/// runZoned(
+///   () {
+///     logger
+///       ..debug('a debug message',prefix: 'API Repository')
+///       // [API_REPOSITORY] a debug message
+///       ..lazyDebug(() => 'a lazy debug message', prefix: 'API Repository');
+///       // [API_REPOSITORY] a lazy debug message
+///       // evaluated only when at least one handler will write (can returns true)
+///   },
+///  zoneValues: {
+///    #userId: 123,
+///    #tenantId: 'tenant-xyz',
+///  },
+/// );
 /// ```
 /// {@endtemplate}
 class EnLogger {
@@ -58,6 +86,9 @@ class EnLogger {
   /// [defaultPrefixFormat] - Optional default format for prefix display.
   /// This format will be applied to handlers that don't
   /// have their own prefixFormat configured.
+  ///
+  /// [zoneContextKeys] - Optional set of keys to extract
+  /// from the current execution zone and attach as tags to every log event.
   ///
   /// {@macro en_logger}
   factory EnLogger({
@@ -198,6 +229,10 @@ class EnLogger {
   /// ## Parameters
   /// [prefix] - Optional default prefix to use for all log messages.
   ///
+  /// [zoneContextKeys] - Optional set of keys to extract
+  /// from the current execution zone and attach as tags to every log event.
+  /// [zoneContextKeys] provided here will be merged with parent logger's keys.
+  ///
   /// ## Returns
   /// Returns a new [EnLogger] instance with the configured prefix and handlers.
   ///
@@ -243,15 +278,19 @@ class EnLogger {
   ///
   /// {@template en_logger_error_parameters}
   /// ## Parameters
-  /// [error] - The error message or object to log.
+  /// [message] - The error message or object to log.
   ///
   /// [prefix] - Optional prefix for this log message. Overrides the default
   ///            prefix if this logger was created with [getConfiguredInstance].
+  ///
+  /// [error] - Optional error object associated with the log message.
   ///
   /// [stackTrace] - Optional stack trace associated with the error.
   ///
   /// [data] - Optional list of additional data to attach to the log message.
   /// {@endtemplate}
+  ///
+  /// [tags] - Optional map of additional tags to attach to the log message.
   ///
   /// ## Example
   /// ```dart
@@ -430,6 +469,8 @@ class EnLogger {
   ///            prefix if this logger was created with [getConfiguredInstance].
   ///
   /// [data] - Optional list of additional data to attach to the log message.
+  ///
+  /// [tags] - Optional map of additional tags to attach to the log message.
   /// {@endtemplate}
   ///
   /// ## Example
@@ -574,11 +615,15 @@ class EnLogger {
   ///
   /// [prefix] - Optional prefix for this log message.
   ///
+  /// [error] - Optional error object associated with the log message.
+  ///
   /// [stackTrace] - Optional stack trace associated with the log message.
   ///
   /// [dataProvider] - Optional closure that returns the list of additional
   /// data to attach to the log message. Called only when at least one handler
   /// will write.
+  ///
+  /// [tags] - Optional map of additional tags to attach to the log message.
   /// {@endtemplate}
   ///
   /// ## Example
@@ -717,6 +762,8 @@ class EnLogger {
   /// [dataProvider] - Optional closure that returns the list of additional
   /// data to attach to the log message. Called only when at least one handler
   /// will write.
+  /// 
+  /// [tags] - Optional map of additional tags to attach to the log message.
   /// {@endtemplate}
   ///
   /// ## Example

@@ -956,7 +956,7 @@ class EnLogger {
 
     final richData = data.toData(
       timestamp: DateTime.now(),
-      tags: _sanitizeTags(tags),
+      tags: tags,
       eventId: _generateUuidV4(),
       sequenceNumber: _sequenceNumber++,
       isolateName: Isolate.current.debugName,
@@ -1007,7 +1007,7 @@ class EnLogger {
             stackTrace: richData.stackTrace,
             eventId: richData.eventId,
             timestamp: richData.timestamp,
-            tags: richData.tags ?? {},
+            tags: _sanitizeTags(richData.tags ?? {}),
             sequenceNumber: richData.sequenceNumber,
             callerInfo: richData.callerInfo,
             isolateName: richData.isolateName,

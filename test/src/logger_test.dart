@@ -1392,7 +1392,7 @@ void main() {
                 stackTrace: any(named: 'stackTrace'),
                 timestamp: captureAny(named: 'timestamp'),
                 eventId: any(named: 'eventId'),
-                sequenceNumber: any(named: 'sequenceNumber'),
+                sequenceNumber: captureAny(named: 'sequenceNumber'),
                 tags: any(named: 'tags'),
                 data: any(named: 'data'),
                 error: any(named: 'error'),
@@ -1404,7 +1404,7 @@ void main() {
                 stackTrace: any(named: 'stackTrace'),
                 timestamp: captureAny(named: 'timestamp'),
                 eventId: any(named: 'eventId'),
-                sequenceNumber: any(named: 'sequenceNumber'),
+                sequenceNumber: captureAny(named: 'sequenceNumber'),
                 tags: any(named: 'tags'),
                 data: any(named: 'data'),
                 error: any(named: 'error'),
@@ -1429,6 +1429,10 @@ void main() {
         final firstTimestamp = verifications[0].captured.first as DateTime;
         final secondTimestamp = verifications[1].captured.first as DateTime;
         expect(firstTimestamp.compareTo(secondTimestamp) <= 0, isTrue);
+
+        final firstSequenceNumber = verifications[0].captured[1] as int;
+        final secondSequenceNumber = verifications[1].captured[1] as int;
+        expect(firstSequenceNumber < secondSequenceNumber, isTrue);
       });
 
       test('should extract zoneContextKeys and pass them as tags', () async {

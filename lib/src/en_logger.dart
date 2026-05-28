@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:isolate';
 import 'dart:math' as math;
 
 import 'package:en_logger/en_logger.dart';
@@ -25,7 +26,7 @@ typedef EnLoggerLazyDataProvider = EnLoggerLazyProvider<List<EnLoggerData>>;
 /// Each time a new log is created, the handlers are invoked to write
 /// the message according to their implementation.
 ///
-/// [PrinterHandler] is an example of a [EnLoggerHandler].
+/// [DevLogHandler] is an example of a [EnLoggerHandler].
 ///
 /// ## Lazy evaluation
 /// The "lazy" variants of the log methods (e.g. [lazyDebug]) accept
@@ -55,7 +56,7 @@ typedef EnLoggerLazyDataProvider = EnLoggerLazyProvider<List<EnLoggerData>>;
 ///   ),
 /// )
 ///   ..addHandlers([
-///     PrinterHandler(),
+///     DevLogHandler(),
 ///   ]);
 ///
 /// runZoned(
@@ -95,6 +96,7 @@ class EnLogger {
     List<EnLoggerHandler>? handlers,
     PrefixFormat? defaultPrefixFormat,
     Set<Object>? zoneContextKeys,
+    bool? includeCallerInfo,
   }) {
     return EnLogger._(
       handlers: handlers
@@ -107,6 +109,7 @@ class EnLogger {
       prefix: null,
       zoneContextKeys: zoneContextKeys,
       sharedState: _EnLoggerSharedState(),
+      includeCallerInfo: includeCallerInfo,
     );
   }
 
@@ -116,6 +119,7 @@ class EnLogger {
     required String? prefix,
     required Set<Object>? zoneContextKeys,
     required _EnLoggerSharedState sharedState,
+    required bool? includeCallerInfo,
   })  : _handlers = handlers,
         _defaultPrefixFormat = defaultPrefixFormat,
         _prefix = prefix,
@@ -123,7 +127,8 @@ class EnLogger {
         _instances = {},
         _pendingTasks = {},
         _sharedState = sharedState,
-        _zoneContextKeys = zoneContextKeys ?? {};
+        _zoneContextKeys = zoneContextKeys ?? {},
+        _includeCallerInfo = includeCallerInfo ?? false;
 
   static int _sequenceNumber = 0;
 
@@ -131,6 +136,7 @@ class EnLogger {
   final List<EnLoggerHandler> _handlers;
   final PrefixFormat? _defaultPrefixFormat;
   final String? _prefix;
+  final bool _includeCallerInfo;
 
   final Set<Object> _zoneContextKeys;
 
@@ -153,8 +159,8 @@ class EnLogger {
   /// ## Example:
   /// ```dart
   /// final logger = EnLogger();
-  /// logger.addHandler(PrinterHandler());
-  /// logger.debug('message'); // PrinterHandler will write the message
+  /// logger.addHandler(DevLogHandler());
+  /// logger.debug('message'); // DevLogHandler will write the message
   /// ```
   void addHandler(EnLoggerHandler handler) => _handlers.add(
         handler..prefixFormat = handler.prefixFormat ?? _defaultPrefixFormat,
@@ -169,10 +175,10 @@ class EnLogger {
   /// ```dart
   /// final logger = EnLogger();
   /// logger.addHandlers([
-  ///   PrinterHandler(),
+  ///   DevLogHandler(),
   ///   SentryHandler(),
   /// ]);
-  /// logger.debug('message'); // PrinterHandler and SentryHandler will write the message
+  /// logger.debug('message'); // DevLogHandler and SentryHandler will write the message
   /// ```
   void addHandlers(List<EnLoggerHandler> handlers) {
     handlers.forEach(addHandler);
@@ -182,7 +188,7 @@ class EnLogger {
   ///
   /// ## Example:
   /// ```dart
-  /// final handler = PrinterHandler();
+  /// final handler = DevLogHandler();
   /// final logger = EnLogger()..addHandler(handler);
   /// logger.removeHandler(handler);
   /// logger.debug('message'); // handler won't receive this message
@@ -195,8 +201,8 @@ class EnLogger {
   ///
   /// ## Example:
   /// ```dart
-  /// final handler1 = PrinterHandler();
-  /// final handler2 = PrinterHandler();
+  /// final handler1 = DevLogHandler();
+  /// final handler2 = DevLogHandler();
   /// final logger = EnLogger()..addHandlers([handler1, handler2]);
   /// logger.removeHandlers([handler1, handler2]);
   /// logger.debug('message'); // handlers won't receive this message
@@ -210,8 +216,8 @@ class EnLogger {
   /// ## Example:
   /// ```dart
   /// final logger = EnLogger()
-  ///   ..addHandler(PrinterHandler())
-  ///   ..addHandler(PrinterHandler());
+  ///   ..addHandler(DevLogHandler())
+  ///   ..addHandler(DevLogHandler());
   /// logger.removeAllHandlers();
   /// logger.debug('message'); // no handlers will receive this message
   /// ```
@@ -233,12 +239,15 @@ class EnLogger {
   /// from the current execution zone and attach as tags to every log event.
   /// [zoneContextKeys] provided here will be merged with parent logger's keys.
   ///
+  /// [includeCallerInfo] - If `true` `callerInfo` will be calculated
+  /// and provided to handlers
+  ///
   /// ## Returns
   /// Returns a new [EnLogger] instance with the configured prefix and handlers.
   ///
   /// ## Example:
   /// ```dart
-  /// final logger = EnLogger()..addHandler(PrinterHandler());
+  /// final logger = EnLogger()..addHandler(DevLogHandler());
   ///
   /// // Create a configured instance with a default prefix
   /// final apiLogger = logger.getConfiguredInstance(prefix: 'API Repository');
@@ -250,6 +259,7 @@ class EnLogger {
   EnLogger getConfiguredInstance({
     String? prefix,
     Set<Object>? zoneContextKeys,
+    bool? includeCallerInfo,
   }) {
     final mergedZoneKeys = <Object>{
       ..._zoneContextKeys,
@@ -262,6 +272,7 @@ class EnLogger {
       handlers: List.of(_handlers),
       zoneContextKeys: mergedZoneKeys,
       sharedState: _sharedState,
+      includeCallerInfo: includeCallerInfo ?? _includeCallerInfo,
     );
     _instances.add(instance);
     return instance;
@@ -294,7 +305,7 @@ class EnLogger {
   ///
   /// ## Example
   /// ```dart
-  /// final logger = EnLogger()..addHandler(PrinterHandler());
+  /// final logger = EnLogger()..addHandler(DevLogHandler());
   /// logger.emergency(
   ///   'System failure',
   ///   stackTrace: StackTrace.current,
@@ -341,7 +352,7 @@ class EnLogger {
   ///
   /// ## Example
   /// ```dart
-  /// final logger = EnLogger()..addHandler(PrinterHandler());
+  /// final logger = EnLogger()..addHandler(DevLogHandler());
   /// logger.alert(
   ///   'Database connection lost',
   ///   stackTrace: StackTrace.current,
@@ -381,7 +392,7 @@ class EnLogger {
   ///
   /// ## Example
   /// ```dart
-  /// final logger = EnLogger()..addHandler(PrinterHandler());
+  /// final logger = EnLogger()..addHandler(DevLogHandler());
   /// logger.critical(
   ///   'Disk full',
   ///   stackTrace: StackTrace.current,
@@ -419,7 +430,7 @@ class EnLogger {
   ///
   /// ## Example
   /// ```dart
-  /// final logger = EnLogger()..addHandler(PrinterHandler());
+  /// final logger = EnLogger()..addHandler(DevLogHandler());
   /// logger.error(
   ///   'error',
   ///   data: [
@@ -475,7 +486,7 @@ class EnLogger {
   ///
   /// ## Example
   /// ```dart
-  /// final logger = EnLogger()..addHandler(PrinterHandler());
+  /// final logger = EnLogger()..addHandler(DevLogHandler());
   /// logger.warning('Low disk space');
   /// ```
   void warning(
@@ -509,7 +520,7 @@ class EnLogger {
   ///
   /// ## Example
   /// ```dart
-  /// final logger = EnLogger()..addHandler(PrinterHandler());
+  /// final logger = EnLogger()..addHandler(DevLogHandler());
   /// logger.normal('User logged in');
   /// ```
   void normal(
@@ -542,7 +553,7 @@ class EnLogger {
   ///
   /// ## Example
   /// ```dart
-  /// final logger = EnLogger()..addHandler(PrinterHandler());
+  /// final logger = EnLogger()..addHandler(DevLogHandler());
   /// logger.info('Application started');
   /// ```
   void info(
@@ -576,7 +587,7 @@ class EnLogger {
   ///
   /// ## Example
   /// ```dart
-  /// final logger = EnLogger()..addHandler(PrinterHandler());
+  /// final logger = EnLogger()..addHandler(DevLogHandler());
   /// logger.debug('a debug message');
   ///
   /// // With prefix
@@ -882,7 +893,7 @@ class EnLogger {
   ///
   /// ## Example:
   /// ```dart
-  /// final logger = EnLogger()..addHandler(PrinterHandler())..lazyDebug(() {
+  /// final logger = EnLogger()..addHandler(DevLogHandler())..lazyDebug(() {
   ///   final heavyLog = await compute();
   ///   return heavyLog.toString();
   /// });
@@ -919,26 +930,6 @@ class EnLogger {
       return;
     }
 
-    /// wait for the completion of the previous log task
-    /// to maintain the order of logs
-    final currentTask = _sharedState.lastLogTask.then((_) {
-      return _asyncWrite(data);
-    })
-      ..ignore();
-
-    _sharedState.lastLogTask = currentTask;
-
-    _pendingTasks.add(currentTask);
-
-    currentTask.whenComplete(() {
-      _pendingTasks.remove(currentTask);
-    }).ignore();
-    return;
-  }
-
-  // The write operations of the handlers are managed in a
-  // separate task since attachments with unknown sizes might be present.
-  Future<void> _asyncWrite(_BaseEnLogDataDto data) async {
     if (_handlers.isEmpty) {
       return;
     }
@@ -968,8 +959,33 @@ class EnLogger {
       tags: _sanitizeTags(tags),
       eventId: _generateUuidV4(),
       sequenceNumber: _sequenceNumber++,
+      isolateName: Isolate.current.debugName,
+      callerInfo: _includeCallerInfo ? _callerInfo() : null,
     );
 
+    /// wait for the completion of the previous log task
+    /// to maintain the order of logs
+    final currentTask = _sharedState.lastLogTask.then<FutureOr<void>>((_) {
+      return _asyncWrite(richData, handlersToWrite: handlersToWrite);
+    })
+      ..ignore();
+
+    _sharedState.lastLogTask = currentTask;
+
+    _pendingTasks.add(currentTask);
+
+    currentTask.whenComplete(() {
+      _pendingTasks.remove(currentTask);
+    }).ignore();
+    return;
+  }
+
+  // The write operations of the handlers are managed in a
+  // separate task since attachments with unknown sizes might be present.
+  Future<void> _asyncWrite(
+    _EnLogDataDto richData, {
+    required Iterable<EnLoggerHandler> handlersToWrite,
+  }) async {
     final resolvedMessage = richData.lazyMessage != null
         ? (await richData.lazyMessage!())
         : richData.message;
@@ -993,6 +1009,8 @@ class EnLogger {
             timestamp: richData.timestamp,
             tags: richData.tags ?? {},
             sequenceNumber: richData.sequenceNumber,
+            callerInfo: richData.callerInfo,
+            isolateName: richData.isolateName,
           );
       tasks.add(Future.sync(futureOrWrite));
     }
@@ -1048,12 +1066,16 @@ class _BaseEnLogDataDto {
     required DateTime timestamp,
     required String eventId,
     required int sequenceNumber,
+    required String? isolateName,
+    required String? callerInfo,
   }) {
     return _EnLogDataDto(
       tags: tags,
       timestamp: timestamp,
       eventId: eventId,
       sequenceNumber: sequenceNumber,
+      isolateName: isolateName,
+      callerInfo: callerInfo,
       message: message,
       lazyMessage: lazyMessage,
       severity: severity,
@@ -1072,6 +1094,8 @@ class _EnLogDataDto extends _BaseEnLogDataDto {
     required this.eventId,
     required this.sequenceNumber,
     required super.severity,
+    this.isolateName,
+    this.callerInfo,
     super.tags,
     super.message,
     super.lazyMessage,
@@ -1087,4 +1111,8 @@ class _EnLogDataDto extends _BaseEnLogDataDto {
   final String eventId;
 
   final int sequenceNumber;
+
+  final String? isolateName;
+
+  final String? callerInfo;
 }

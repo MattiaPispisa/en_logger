@@ -6,7 +6,7 @@ import 'package:en_logger/en_logger.dart';
 /// ## Description
 /// An [EnLoggerHandler] is the one who will actually handle the log message.
 /// Implement this abstract class to create custom log handlers.
-/// [PrinterHandler] is an example of a [EnLoggerHandler].
+/// [DevLogHandler] is an example of a [EnLoggerHandler].
 /// {@endtemplate}
 ///
 /// {@template en_logger_handler_example}
@@ -96,6 +96,11 @@ abstract class EnLoggerHandler {
   /// [sequenceNumber] - A globally incrementing counter starting from 0.
   /// Guarantees the absolute chronological creation order of logs
   /// within the app lifecycle.
+  ///
+  /// [isolateName] - The name of the isolate where the log was generated.
+  ///
+  /// [callerInfo] - Indicates the exact location in your source code
+  /// where the log was emitted.
   /// {@macro en_logger_handler_example}
   void write(
     String message, {
@@ -108,5 +113,7 @@ abstract class EnLoggerHandler {
     Object? error,
     StackTrace? stackTrace,
     List<EnLoggerData>? data,
+    String? isolateName,
+    String? callerInfo,
   });
 }

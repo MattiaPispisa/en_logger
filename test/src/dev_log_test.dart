@@ -9,10 +9,10 @@ void main() {
     'PrinterHandler',
     () {
       var message = '';
-      late PrinterHandler handler;
+      late DevLogHandler handler;
 
       setUp(() {
-        handler = PrinterHandler.custom(
+        handler = DevLogHandler.custom(
           logCallback: (
             String content, {
             DateTime? time,
@@ -37,7 +37,7 @@ void main() {
         () {
           expect(
             () {
-              PrinterHandler();
+              DevLogHandler();
             },
             returnsNormally,
           );
@@ -56,7 +56,7 @@ void main() {
             sequenceNumber: 0,
           );
 
-          expect(message, '${const PrinterColor.red().schema}error\x1B[0m');
+          expect(message, '${const DevLogColor.red().schema}error\x1B[0m');
         },
       );
 
@@ -75,7 +75,7 @@ void main() {
 
           expect(
             message,
-            '${const PrinterColor.red().schema}[PREFIX] error\x1B[0m',
+            '${const DevLogColor.red().schema}[PREFIX] error\x1B[0m',
           );
         },
       );
@@ -83,7 +83,7 @@ void main() {
       test(
         'should write message with prefix with default prefix format',
         () {
-          handler = PrinterHandler.custom(
+          handler = DevLogHandler.custom(
             logCallback: (
               String content, {
               DateTime? time,
@@ -108,7 +108,7 @@ void main() {
 
           expect(
             message,
-            '${const PrinterColor.red().schema}[PREFIX] error\x1B[0m',
+            '${const DevLogColor.red().schema}[PREFIX] error\x1B[0m',
           );
         },
       );
@@ -116,8 +116,8 @@ void main() {
       test('should configure colors', () {
         handler
           ..configure({
-            Severity.informational: const PrinterColor.magenta(),
-            Severity.debug: const PrinterColor.custom(schema: '\x1B[38m'),
+            Severity.informational: const DevLogColor.magenta(),
+            Severity.debug: const DevLogColor.custom(schema: '\x1B[38m'),
           })
           ..write(
             'informational',
@@ -130,7 +130,7 @@ void main() {
 
         expect(
           message,
-          '${const PrinterColor.magenta().schema}informational\x1B[0m',
+          '${const DevLogColor.magenta().schema}informational\x1B[0m',
         );
 
         handler.write(
@@ -148,7 +148,7 @@ void main() {
       });
 
       test('should filter messages', () {
-        handler = PrinterHandler.custom(
+        handler = DevLogHandler.custom(
           logCallback: (
             String content, {
             DateTime? time,

@@ -3,10 +3,10 @@ import 'package:en_logger/en_logger.dart';
 /// Color configuration for each [Severity] level.
 ///
 /// Manages the mapping between severity levels and their corresponding
-/// printer colors. Used internally by [PrinterHandler] to colorize
+/// dev log colors. Used internally by [DevLogHandler] to colorize
 /// log messages based on their severity.
-class PrinterColorConfiguration {
-  /// Creates a new [PrinterColorConfiguration] with default colors.
+class DevLogColorConfiguration {
+  /// Creates a new [DevLogColorConfiguration] with default colors.
   ///
   /// Default color mapping:
   /// - [Severity.emergency] → red
@@ -17,17 +17,17 @@ class PrinterColorConfiguration {
   /// - [Severity.notice] → blue
   /// - [Severity.informational] → green
   /// - [Severity.debug] → cyan
-  PrinterColorConfiguration();
+  DevLogColorConfiguration();
 
-  final Map<Severity, PrinterColor> _configuration = {
-    Severity.emergency: const PrinterColor.red(),
-    Severity.alert: const PrinterColor.red(),
-    Severity.critical: const PrinterColor.red(),
-    Severity.error: const PrinterColor.red(),
-    Severity.warning: const PrinterColor.yellow(),
-    Severity.notice: const PrinterColor.blue(),
-    Severity.informational: const PrinterColor.green(),
-    Severity.debug: const PrinterColor.cyan(),
+  final Map<Severity, DevLogColor> _configuration = {
+    Severity.emergency: const DevLogColor.red(),
+    Severity.alert: const DevLogColor.red(),
+    Severity.critical: const DevLogColor.red(),
+    Severity.error: const DevLogColor.red(),
+    Severity.warning: const DevLogColor.yellow(),
+    Severity.notice: const DevLogColor.blue(),
+    Severity.informational: const DevLogColor.green(),
+    Severity.debug: const DevLogColor.cyan(),
   };
 
   /// Updates the color for a specific [severity] level.
@@ -38,10 +38,10 @@ class PrinterColorConfiguration {
   ///
   /// Example:
   /// ```dart
-  /// final config = PrinterColorConfiguration();
-  /// config.setSeverityColor(Severity.error, const PrinterColor.magenta());
+  /// final config = DevLogColorConfiguration();
+  /// config.setSeverityColor(Severity.error, const DevLogColor.magenta());
   /// ```
-  void setSeverityColor(Severity severity, PrinterColor color) {
+  void setSeverityColor(Severity severity, DevLogColor color) {
     _configuration[severity] = color;
   }
 
@@ -51,17 +51,17 @@ class PrinterColorConfiguration {
   ///
   /// Example:
   /// ```dart
-  /// final config = PrinterColorConfiguration();
+  /// final config = DevLogColorConfiguration();
   /// config.setSeverityColors({
-  ///   Severity.informational: const PrinterColor.magenta(),
-  ///   Severity.debug: const PrinterColor.custom(schema: '\x1B[38m'),
+  ///   Severity.informational: const DevLogColor.magenta(),
+  ///   Severity.debug: const DevLogColor.custom(schema: '\x1B[38m'),
   /// });
   /// ```
-  void setSeverityColors(Map<Severity, PrinterColor> updateConfig) {
+  void setSeverityColors(Map<Severity, DevLogColor> updateConfig) {
     updateConfig.forEach(setSeverityColor);
   }
 
-  /// Returns the printer color for the given [severity] level.
+  /// Returns the [DevLogColor] for the given [severity] level.
   ///
   /// [severity] - The severity level to get the color for.
   ///
@@ -70,10 +70,10 @@ class PrinterColorConfiguration {
   ///
   /// Example:
   /// ```dart
-  /// final config = PrinterColorConfiguration();
+  /// final config = DevLogColorConfiguration();
   /// final color = config.getColor(Severity.error); // red
   /// ```
-  PrinterColor getColor(Severity severity) {
-    return _configuration[severity] ?? const PrinterColor.blue();
+  DevLogColor getColor(Severity severity) {
+    return _configuration[severity] ?? const DevLogColor.blue();
   }
 }

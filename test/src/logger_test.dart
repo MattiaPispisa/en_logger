@@ -41,6 +41,8 @@ class _NoOpEnHandler extends EnLoggerHandler {
     Object? error,
     StackTrace? stackTrace,
     List<EnLoggerData>? data,
+    String? isolateName,
+    String? callerInfo,
   }) {
     writeCalledCount++;
     return;
@@ -97,6 +99,8 @@ void main() {
               sequenceNumber: any(named: 'sequenceNumber'),
               tags: any(named: 'tags'),
               error: any(named: 'error'),
+              callerInfo: any(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
             ),
           ).called(1);
 
@@ -118,6 +122,8 @@ void main() {
               sequenceNumber: any(named: 'sequenceNumber'),
               tags: any(named: 'tags'),
               error: any(named: 'error'),
+              callerInfo: any(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
             ),
           );
 
@@ -140,6 +146,8 @@ void main() {
               sequenceNumber: any(named: 'sequenceNumber'),
               tags: any(named: 'tags'),
               error: any(named: 'error'),
+              callerInfo: any(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
             ),
           );
 
@@ -161,6 +169,8 @@ void main() {
               sequenceNumber: any(named: 'sequenceNumber'),
               tags: any(named: 'tags'),
               error: any(named: 'error'),
+              callerInfo: any(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
             ),
           ).called(1);
 
@@ -181,6 +191,8 @@ void main() {
               sequenceNumber: any(named: 'sequenceNumber'),
               tags: any(named: 'tags'),
               error: any(named: 'error'),
+              callerInfo: any(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
             ),
           );
         },
@@ -227,6 +239,8 @@ void main() {
             sequenceNumber: any(named: 'sequenceNumber'),
             tags: any(named: 'tags'),
             error: any(named: 'error'),
+            callerInfo: any(named: 'callerInfo'),
+            isolateName: any(named: 'isolateName'),
           ),
         ).called(1);
       });
@@ -264,6 +278,8 @@ void main() {
               sequenceNumber: any(named: 'sequenceNumber'),
               tags: any(named: 'tags'),
               error: any(named: 'error'),
+              callerInfo: any(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
             ),
           ).called(1);
 
@@ -279,6 +295,8 @@ void main() {
               sequenceNumber: any(named: 'sequenceNumber'),
               tags: any(named: 'tags'),
               error: any(named: 'error'),
+              callerInfo: any(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
             ),
           ).called(1);
 
@@ -294,6 +312,8 @@ void main() {
               sequenceNumber: any(named: 'sequenceNumber'),
               tags: any(named: 'tags'),
               error: any(named: 'error'),
+              callerInfo: any(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
             ),
           ).called(1);
 
@@ -309,6 +329,8 @@ void main() {
               sequenceNumber: any(named: 'sequenceNumber'),
               tags: any(named: 'tags'),
               error: any(named: 'error'),
+              callerInfo: any(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
             ),
           ).called(1);
 
@@ -331,6 +353,8 @@ void main() {
                 'toString',
                 contains('error'),
               ),
+              callerInfo: any(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
             ),
           ).called(1);
 
@@ -346,6 +370,8 @@ void main() {
               sequenceNumber: any(named: 'sequenceNumber'),
               tags: any(named: 'tags'),
               error: any(named: 'error'),
+              callerInfo: any(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
             ),
           ).called(1);
 
@@ -361,6 +387,8 @@ void main() {
               sequenceNumber: any(named: 'sequenceNumber'),
               tags: any(named: 'tags'),
               error: any(named: 'error'),
+              callerInfo: any(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
             ),
           ).called(1);
 
@@ -376,6 +404,8 @@ void main() {
               sequenceNumber: any(named: 'sequenceNumber'),
               tags: any(named: 'tags'),
               error: any(named: 'error'),
+              callerInfo: any(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
             ),
           ).called(1);
         },
@@ -419,6 +449,8 @@ void main() {
               sequenceNumber: any(named: 'sequenceNumber'),
               tags: any(named: 'tags'),
               error: any(named: 'error'),
+              callerInfo: any(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
             ),
           ).called(1);
         },
@@ -454,6 +486,8 @@ void main() {
               sequenceNumber: any(named: 'sequenceNumber'),
               tags: any(named: 'tags'),
               error: any(named: 'error'),
+              callerInfo: any(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
             ),
           ).called(1);
 
@@ -471,6 +505,8 @@ void main() {
               sequenceNumber: any(named: 'sequenceNumber'),
               tags: any(named: 'tags'),
               error: any(named: 'error'),
+              callerInfo: any(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
             ),
           ).called(1);
         },
@@ -508,6 +544,8 @@ void main() {
               sequenceNumber: any(named: 'sequenceNumber'),
               tags: any(named: 'tags'),
               error: any(named: 'error'),
+              callerInfo: any(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
             ),
           ).called(1);
 
@@ -525,6 +563,8 @@ void main() {
               sequenceNumber: any(named: 'sequenceNumber'),
               tags: any(named: 'tags'),
               error: any(named: 'error'),
+              callerInfo: any(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
             ),
           );
         },
@@ -570,6 +610,8 @@ void main() {
               sequenceNumber: any(named: 'sequenceNumber'),
               tags: any(named: 'tags'),
               error: any(named: 'error'),
+              callerInfo: any(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
             ),
           ).called(1);
           verify(
@@ -583,6 +625,8 @@ void main() {
               sequenceNumber: any(named: 'sequenceNumber'),
               tags: any(named: 'tags'),
               error: any(named: 'error'),
+              callerInfo: any(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
             ),
           ).called(1);
 
@@ -601,6 +645,8 @@ void main() {
               sequenceNumber: any(named: 'sequenceNumber'),
               tags: any(named: 'tags'),
               error: any(named: 'error'),
+              callerInfo: any(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
             ),
           );
         },
@@ -636,6 +682,8 @@ void main() {
             sequenceNumber: any(named: 'sequenceNumber'),
             tags: any(named: 'tags'),
             error: any(named: 'error'),
+            callerInfo: any(named: 'callerInfo'),
+            isolateName: any(named: 'isolateName'),
           ),
         ).called(1);
         verify(
@@ -649,6 +697,8 @@ void main() {
             sequenceNumber: any(named: 'sequenceNumber'),
             tags: any(named: 'tags'),
             error: any(named: 'error'),
+            callerInfo: any(named: 'callerInfo'),
+            isolateName: any(named: 'isolateName'),
           ),
         ).called(1);
       });
@@ -696,6 +746,8 @@ void main() {
               sequenceNumber: any(named: 'sequenceNumber'),
               tags: any(named: 'tags'),
               error: any(named: 'error'),
+              callerInfo: any(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
             ),
           );
           verify(
@@ -709,6 +761,8 @@ void main() {
               sequenceNumber: any(named: 'sequenceNumber'),
               tags: any(named: 'tags'),
               error: any(named: 'error'),
+              callerInfo: any(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
             ),
           ).called(1);
 
@@ -726,6 +780,8 @@ void main() {
               sequenceNumber: any(named: 'sequenceNumber'),
               tags: any(named: 'tags'),
               error: any(named: 'error'),
+              callerInfo: any(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
             ),
           ).called(1);
         },
@@ -761,6 +817,8 @@ void main() {
               sequenceNumber: any(named: 'sequenceNumber'),
               tags: any(named: 'tags'),
               error: any(named: 'error'),
+              callerInfo: any(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
             ),
           ).called(1);
 
@@ -782,6 +840,8 @@ void main() {
               sequenceNumber: any(named: 'sequenceNumber'),
               tags: any(named: 'tags'),
               error: any(named: 'error'),
+              callerInfo: any(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
             ),
           );
 
@@ -804,6 +864,8 @@ void main() {
               sequenceNumber: any(named: 'sequenceNumber'),
               tags: any(named: 'tags'),
               error: any(named: 'error'),
+              callerInfo: any(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
             ),
           );
 
@@ -825,6 +887,8 @@ void main() {
               sequenceNumber: any(named: 'sequenceNumber'),
               tags: any(named: 'tags'),
               error: any(named: 'error'),
+              callerInfo: any(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
             ),
           ).called(1);
 
@@ -846,6 +910,8 @@ void main() {
               sequenceNumber: any(named: 'sequenceNumber'),
               tags: any(named: 'tags'),
               error: any(named: 'error'),
+              callerInfo: any(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
             ),
           );
         },
@@ -885,6 +951,8 @@ void main() {
               sequenceNumber: any(named: 'sequenceNumber'),
               tags: any(named: 'tags'),
               error: any(named: 'error'),
+              callerInfo: any(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
             ),
           ).called(1);
 
@@ -901,6 +969,8 @@ void main() {
               sequenceNumber: any(named: 'sequenceNumber'),
               tags: any(named: 'tags'),
               error: any(named: 'error'),
+              callerInfo: any(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
             ),
           ).called(1);
 
@@ -917,6 +987,8 @@ void main() {
               sequenceNumber: any(named: 'sequenceNumber'),
               tags: any(named: 'tags'),
               error: any(named: 'error'),
+              callerInfo: any(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
             ),
           ).called(1);
 
@@ -933,6 +1005,8 @@ void main() {
               sequenceNumber: any(named: 'sequenceNumber'),
               tags: any(named: 'tags'),
               error: any(named: 'error'),
+              callerInfo: any(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
             ),
           ).called(1);
 
@@ -949,6 +1023,8 @@ void main() {
               sequenceNumber: any(named: 'sequenceNumber'),
               tags: any(named: 'tags'),
               error: any(named: 'error'),
+              callerInfo: any(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
             ),
           ).called(1);
 
@@ -965,6 +1041,8 @@ void main() {
               sequenceNumber: any(named: 'sequenceNumber'),
               tags: any(named: 'tags'),
               error: any(named: 'error'),
+              callerInfo: any(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
             ),
           ).called(1);
 
@@ -981,6 +1059,8 @@ void main() {
               sequenceNumber: any(named: 'sequenceNumber'),
               tags: any(named: 'tags'),
               error: any(named: 'error'),
+              callerInfo: any(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
             ),
           ).called(1);
 
@@ -997,6 +1077,8 @@ void main() {
               sequenceNumber: any(named: 'sequenceNumber'),
               tags: any(named: 'tags'),
               error: any(named: 'error'),
+              callerInfo: any(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
             ),
           ).called(1);
         },
@@ -1064,6 +1146,8 @@ void main() {
               sequenceNumber: any(named: 'sequenceNumber'),
               tags: any(named: 'tags'),
               error: any(named: 'error'),
+              callerInfo: any(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
             ),
           ).called(1);
           verifyNever(
@@ -1078,6 +1162,8 @@ void main() {
               sequenceNumber: any(named: 'sequenceNumber'),
               tags: any(named: 'tags'),
               error: any(named: 'error'),
+              callerInfo: any(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
             ),
           );
 
@@ -1110,6 +1196,8 @@ void main() {
               sequenceNumber: any(named: 'sequenceNumber'),
               tags: any(named: 'tags'),
               error: any(named: 'error'),
+              callerInfo: any(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
             ),
           ).called(1);
         },
@@ -1173,6 +1261,8 @@ void main() {
             sequenceNumber: any(named: 'sequenceNumber'),
             tags: any(named: 'tags'),
             error: any(named: 'error'),
+            callerInfo: any(named: 'callerInfo'),
+            isolateName: any(named: 'isolateName'),
           ),
         );
       });
@@ -1224,6 +1314,8 @@ void main() {
             sequenceNumber: any(named: 'sequenceNumber'),
             tags: any(named: 'tags'),
             error: any(named: 'error'),
+            callerInfo: any(named: 'callerInfo'),
+            isolateName: any(named: 'isolateName'),
           ),
         ).called(1);
       });
@@ -1261,6 +1353,8 @@ void main() {
             sequenceNumber: any(named: 'sequenceNumber'),
             tags: any(named: 'tags'),
             error: any(named: 'error'),
+            callerInfo: any(named: 'callerInfo'),
+            isolateName: any(named: 'isolateName'),
           ),
         );
 
@@ -1300,6 +1394,8 @@ void main() {
             sequenceNumber: any(named: 'sequenceNumber'),
             tags: any(named: 'tags'),
             error: any(named: 'error'),
+            callerInfo: any(named: 'callerInfo'),
+            isolateName: any(named: 'isolateName'),
           ),
         );
       });
@@ -1396,6 +1492,8 @@ void main() {
                 tags: any(named: 'tags'),
                 data: any(named: 'data'),
                 error: any(named: 'error'),
+                callerInfo: any(named: 'callerInfo'),
+                isolateName: any(named: 'isolateName'),
               ),
           () => mockHandler.write(
                 'info',
@@ -1408,6 +1506,8 @@ void main() {
                 tags: any(named: 'tags'),
                 data: any(named: 'data'),
                 error: any(named: 'error'),
+                callerInfo: any(named: 'callerInfo'),
+                isolateName: any(named: 'isolateName'),
               ),
         ]);
 
@@ -1423,6 +1523,8 @@ void main() {
             tags: any(named: 'tags'),
             data: any(named: 'data'),
             error: any(named: 'error'),
+            callerInfo: any(named: 'callerInfo'),
+            isolateName: any(named: 'isolateName'),
           ),
         );
 
@@ -1480,6 +1582,8 @@ void main() {
             tags: captureAny(named: 'tags'),
             data: any(named: 'data'),
             error: any(named: 'error'),
+            callerInfo: any(named: 'callerInfo'),
+            isolateName: any(named: 'isolateName'),
           ),
         )..called(1);
 
@@ -1538,6 +1642,8 @@ void main() {
             tags: captureAny(named: 'tags'),
             data: any(named: 'data'),
             error: any(named: 'error'),
+            callerInfo: any(named: 'callerInfo'),
+            isolateName: any(named: 'isolateName'),
           ),
         )..called(1);
 
@@ -1587,6 +1693,8 @@ void main() {
             tags: captureAny(named: 'tags'),
             data: any(named: 'data'),
             error: any(named: 'error'),
+            callerInfo: any(named: 'callerInfo'),
+            isolateName: any(named: 'isolateName'),
           ),
         )..called(1);
 
@@ -1651,6 +1759,8 @@ void main() {
             tags: captureAny(named: 'tags'),
             data: any(named: 'data'),
             error: any(named: 'error'),
+            callerInfo: any(named: 'callerInfo'),
+            isolateName: any(named: 'isolateName'),
           ),
         )..called(1);
 
@@ -1661,6 +1771,101 @@ void main() {
         expect(capturedTags['userId'], equals('user_123'));
         expect(capturedTags['tenant_id'], equals(42));
         expect(capturedTags['custom_tag'], equals('custom_value'));
+      });
+
+      test('should callerInfo match the exact line of execution', () async {
+        registerFallbackValue(Severity.debug);
+
+        final mockHandler = _MockHandler();
+        final completer = Completer<void>();
+
+        when(
+          () => mockHandler.can(
+            severity: any(named: 'severity'),
+            prefix: any(named: 'prefix'),
+          ),
+        ).thenReturn(true);
+
+        EnLogger(includeCallerInfo: true)
+          ..addHandler(mockHandler)
+          ..lazyDebug(() async {
+            await completer.future;
+            return 'lazyDebug';
+          });
+
+        await Future<void>.delayed(Duration.zero);
+        completer.complete();
+        await Future<void>.delayed(Duration.zero);
+
+        final verification = verify(
+          () => mockHandler.write(
+            'lazyDebug',
+            prefix: any(named: 'prefix'),
+            severity: any(named: 'severity'),
+            stackTrace: any(named: 'stackTrace'),
+            timestamp: any(named: 'timestamp'),
+            eventId: any(named: 'eventId'),
+            sequenceNumber: any(named: 'sequenceNumber'),
+            tags: any(named: 'tags'),
+            data: any(named: 'data'),
+            error: any(named: 'error'),
+            callerInfo: captureAny(named: 'callerInfo'),
+            isolateName: any(named: 'isolateName'),
+          ),
+        )..called(1);
+
+        final callerInfo = verification.captured.first;
+        expect(
+          callerInfo,
+          contains(
+            'en_logger/test/src/logger_test.dart:1791',
+          ),
+        );
+      });
+
+      test('should callerInfo be null if disabled', () async {
+        registerFallbackValue(Severity.debug);
+
+        final mockHandler = _MockHandler();
+        final completer = Completer<void>();
+
+        when(
+          () => mockHandler.can(
+            severity: any(named: 'severity'),
+            prefix: any(named: 'prefix'),
+          ),
+        ).thenReturn(true);
+
+        EnLogger(includeCallerInfo: false)
+          ..addHandler(mockHandler)
+          ..lazyDebug(() async {
+            await completer.future;
+            return 'lazyDebug';
+          });
+
+        await Future<void>.delayed(Duration.zero);
+        completer.complete();
+        await Future<void>.delayed(Duration.zero);
+
+        final verification = verify(
+          () => mockHandler.write(
+            'lazyDebug',
+            prefix: any(named: 'prefix'),
+            severity: any(named: 'severity'),
+            stackTrace: any(named: 'stackTrace'),
+            timestamp: any(named: 'timestamp'),
+            eventId: any(named: 'eventId'),
+            sequenceNumber: any(named: 'sequenceNumber'),
+            tags: any(named: 'tags'),
+            data: any(named: 'data'),
+            error: any(named: 'error'),
+            callerInfo: captureAny(named: 'callerInfo'),
+            isolateName: any(named: 'isolateName'),
+          ),
+        )..called(1);
+
+        final callerInfo = verification.captured.first;
+        expect(callerInfo, isNull);
       });
     },
   );

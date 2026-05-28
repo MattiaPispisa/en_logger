@@ -47,3 +47,24 @@ extension _SymbolHelper on Symbol {
     return match?.group(1) ?? toString();
   }
 }
+
+String? _callerInfo() {
+  final traceString = StackTrace.current.toString();
+
+  final regex = RegExp(r'^#\d+\s+(.+)$', multiLine: true);
+
+  for (final match in regex.allMatches(traceString)) {
+    final fullFrame = match.group(0)!;
+
+    if (fullFrame.contains('package:en_logger') ||
+        fullFrame.contains('(dart:') ||
+        fullFrame.contains(' dart:') ||
+        fullFrame.contains('<asynchronous suspension>')) {
+      continue;
+    }
+
+    return match.group(1)!.trim();
+  }
+
+  return null;
+}

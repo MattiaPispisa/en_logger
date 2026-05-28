@@ -19,8 +19,9 @@ Instead of restricting you to the standard debug console, `EnLogger` acts as a c
   * *Need remote crash reporting?* Create a handler that pipes messages directly to Sentry, Crashlytics, or Datadog.
 * **Lazy Evaluation:** Boost your app's performance with "lazy" logging. Wrap expensive string interpolations or data serializations in closures; if the log level is disabled, the computation is completely skipped (see the [Lazy messages](#lazy-messages) section for details).
 * **Zone:** Automatically extract contextual data (tags) from `Zone.current` and attach them to every log event.
+* **Caller info** Indicates the exact location in your source code where the log was emitted
 * **Syslog Standards:** All log operations strictly adhere to the standard syslog severity levels (Emergency, Alert, Critical, Error, Warning, Notice, Info, Debug).
-* **Ready-to-use Console Logger:** Get started immediately with the included `PrinterHandler`, which outputs beautifully colored and formatted messages straight to your developer console.
+* **Ready-to-use Console Logger:** Get started immediately with the included `DevLogHandler`, which outputs beautifully colored and formatted messages straight to your developer console.
 
 To see these features in action, check out the [example project](./example/main.dart).
 
@@ -32,8 +33,10 @@ To see these features in action, check out the [example project](./example/main.
     - [Data](#data)
     - [Instances](#instances)
     - [Lazy messages](#lazy-messages)
+    - [Tags & Zones](#tags--zones)
+    - [Caller Info](#caller-info)
     - [Closing the logger](#closing-the-logger)
-    - [PrinterHandler](#printerhandler)
+    - [DevLogHandler](#devloghandler)
     - [CustomHandler](#customhandler)
 
 
@@ -49,7 +52,7 @@ dependencies:
 ### Fast setup
 
 - Create en `EnLogger` instance: `final logger = EnLogger()`
-- Add handlers to your logger: `logger.addHandler(PrinterLogger())`
+- Add handlers to your logger: `logger.addHandler(DevLogHandler())`
 - Write log: `logger.debug('Arrived here');`, `logger.error('Error deserializing data')`
 
 ### Prefix
@@ -62,10 +65,10 @@ final logger = EnLogger(defaultPrefixFormat: PrefixFormat(
     endFormat: ']',
     style: PrefixStyle.uppercaseSnakeCase,
   ))
-  ..addHandler(PrinterLogger())
+  ..addHandler(DevLogHandler())
   ..debug('get data',prefix: "API repository")
 
-  // printer output --> '[API_REPOSITORY] get data'
+  // output --> '[API_REPOSITORY] get data'
 ```
 
 ### Data
@@ -145,6 +148,17 @@ runZoned(
  );
 ```
 
+### Caller info
+`callerInfo` captures the exact location in your source code where a log was emitted. It provides the function name, file path, and line number (e.g., `AuthRepository.login (/lib/auth_repository.dart:142:5)`). 
+
+While an error `stackTrace` shows you where an exception *crashed*, `callerInfo` pinpoints exactly where you *wrote* the log statement.
+
+Because extracting stack traces is a CPU-intensive operation, this feature is disabled by default. You can explicitly enable it when initializing `EnLogger`:
+
+```dart
+final logger = EnLogger(includeCallerInfo: true);
+```
+
 ### Closing the logger
 
 When you are done using an `EnLogger` instance, you should clean up its resources. `EnLogger` provides a graceful shutdown mechanism that safely stops accepting new logs and **waits for any pending asynchronous writes or lazy evaluations to finish** before clearing its handlers, ensuring no data is lost.
@@ -168,21 +182,21 @@ void dispose() {
 }
 ```
 
-### PrinterHandler
+### DevLogHandler
 
-A default Develop console handler colored.
+A default Develop console log handler colored.
 There is a basic color setup that can be updated.
 
 ```dart
-  final printer = PrinterHandler()
-    ..configure({Severity.notice: PrinterColor.green()});
+  final devLogHandler = DevLogHandler()
+    ..configure({Severity.notice: DevLogColor.green()});
 
 ```
 
 You can also create custom colors.
 
 ```dart
-PrinterColor.custom(schema: '\x1B[31m')
+DevLogColor.custom(schema: '\x1B[31m')
 ```
 
 ### CustomHandler

@@ -762,7 +762,7 @@ class EnLogger {
   /// [dataProvider] - Optional closure that returns the list of additional
   /// data to attach to the log message. Called only when at least one handler
   /// will write.
-  /// 
+  ///
   /// [tags] - Optional map of additional tags to attach to the log message.
   /// {@endtemplate}
   ///

@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print just for the example
 
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:en_logger/en_logger.dart';
@@ -17,6 +18,7 @@ void main(List<String> args) async {
 
   // an enLogger with a default prefix format
   final logger = EnLogger(
+    zoneContextKeys: {#userId},
     defaultPrefixFormat: const PrefixFormat(
       startFormat: '[',
       endFormat: ']',
@@ -42,17 +44,25 @@ void main(List<String> args) async {
       ],
     );
 
-  // logger instance with prefix
-  logger.getConfiguredInstance(prefix: 'API Repository')
+  runZoned(
+    () {
+      // In addition to the method tags, the zoneContextKeys
+      // values will be extracted from the zones
 
-    // [API Repository] a debug message
-    ..debug('a debug message')
+      // logger instance with prefix
+      logger.getConfiguredInstance(prefix: 'API Repository')
 
-    // [Custom prefix] a debug message
-    ..error(
-      'error',
-      prefix: 'Custom prefix',
-    );
+        // [API Repository] a debug message
+        ..debug('a debug message')
+
+        // [Custom prefix] a debug message
+        ..error(
+          'error',
+          prefix: 'Custom prefix',
+        );
+    },
+    zoneValues: {#userId: '123'},
+  );
 
   // Lazy: closure is only run if at least one handler will write
   // (e.g. can(severity) is true)

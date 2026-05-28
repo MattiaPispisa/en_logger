@@ -18,6 +18,7 @@ Instead of restricting you to the standard debug console, `EnLogger` acts as a c
   * *Need local persistence?* Implement a handler that writes logs to a local file.
   * *Need remote crash reporting?* Create a handler that pipes messages directly to Sentry, Crashlytics, or Datadog.
 * **Lazy Evaluation:** Boost your app's performance with "lazy" logging. Wrap expensive string interpolations or data serializations in closures; if the log level is disabled, the computation is completely skipped (see the [Lazy messages](#lazy-messages) section for details).
+* **Zone:** Automatically extract contextual data (tags) from `Zone.current` and attach them to every log event.
 * **Syslog Standards:** All log operations strictly adhere to the standard syslog severity levels (Emergency, Alert, Critical, Error, Warning, Notice, Info, Debug).
 * **Ready-to-use Console Logger:** Get started immediately with the included `PrinterHandler`, which outputs beautifully colored and formatted messages straight to your developer console.
 
@@ -113,6 +114,36 @@ logger.lazyDebug(() => 'a lazy debug message');
 By default, `can` returns `true` for every handler, so all log levels are written unless you override it.
 
 The message callbacks (e.g. the closure passed to `lazyDebug`) may be asynchronous. Handle exceptions inside the callback, otherwise they are ignored.
+
+### Tags & Zones
+EnLogger can automatically extract contextual data (tags) from Dart's [Zone.current] and attach them to every log event.
+By providing `zoneContextKeys` to the constructor, the logger will capture only the specified keys from the current execution zone.
+
+Additionally, every logging method accepts its own `tags` parameter. The handlers will receive a single, merged, and sanitized map containing both the requested zone tags and the method-specific tags.
+
+
+```dart
+final logger = EnLogger(
+   zoneContextKeys: {#userId},
+   ...
+);
+
+runZoned(
+   () {
+     // In addition to the method tags, the zoneContextKeys 
+     // values will be extracted from the zones
+     logger
+       .debug('a debug message',
+          prefix: 'API Repository',
+          tags: {'custom_key':'custom_value'},
+          );
+   },
+  zoneValues: {
+    #userId: 123,
+    #tenantId: 'abc'
+  },
+ );
+```
 
 ### Closing the logger
 

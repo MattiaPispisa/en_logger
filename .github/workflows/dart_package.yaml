@@ -32,10 +32,10 @@ jobs:
 
     steps:
       - name: 📚 Git Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: 🎯 Setup Dart
-        uses: dart-lang/setup-dart@v1
+        uses: dart-lang/setup-dart@v1.7.2
         with:
           sdk: ${{inputs.dart_sdk}}
 
@@ -64,7 +64,7 @@ jobs:
           min_coverage: ${{inputs.min_coverage}}
 
       - name: 📤 Upload coverage to Codecov
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@v7
         with:
           directory: ${{inputs.working_directory}}
           token: ${{ secrets.CODECOV_TOKEN }}

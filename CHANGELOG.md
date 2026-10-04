@@ -2,10 +2,12 @@
 
 ### Added
 
+- `EnLogger(onError: ...)`: optional callback invoked when a handler (`write` or `can`) or a lazy message/data provider throws. Shared with the instances created with `getConfiguredInstance`.
 - `PrintLogHandler`: a console log handler that writes with `print`. Useful for CLI tools, scripts, and tests. Shares the same color system and message filters as `DevLogHandler`.
 
 ### Fixed
 
+- A handler or a lazy provider throwing no longer stops the logger: previously every following log was silently dropped, for all handlers. Now each handler is isolated: a failing handler doesn't prevent the other handlers, nor the following logs, from being written.
 - `EnLogger` now works on Web: `Isolate.current` is no longer accessed on platforms without `dart:isolate` (it threw `Unsupported operation: Isolate.current` on every log). `isolateName` is `null` there.
 - `DevLogHandler` now colors every line of a multi-line message, instead of only coloring the first line in consoles that render each line as a separate event (e.g. a browser's expanded console view).
 - ANSI color codes are now only emitted when the current environment is detected to support them (or when `useColors: true` is explicitly set). Previously, colors were always emitted, which could leak raw ANSI escape codes into consoles that don't interpret them.

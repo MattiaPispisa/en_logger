@@ -36,6 +36,7 @@ To see these features in action, check out the [example project](./example/main.
     - [Lazy messages](#lazy-messages)
     - [Tags & Zones](#tags--zones)
     - [Caller Info](#caller-info)
+    - [Error handling](#error-handling)
     - [Closing the logger](#closing-the-logger)
     - [DevLogHandler](#devloghandler)
     - [PrintLogHandler](#printloghandler)
@@ -162,6 +163,20 @@ final logger = EnLogger(includeCallerInfo: true);
 ```
 
 > `callerInfo` relies on the Dart VM stack trace format, so it is not available on Web (it is always `null`).
+
+### Error handling
+
+A failing handler never stops the logger: if a handler (or a lazy message/data provider) throws, the other handlers still write the log, and the following logs are written as usual.
+
+Use `onError` to be notified of these errors (`handler` is `null` when a lazy provider failed):
+
+```dart
+final logger = EnLogger(
+  onError: (error, stackTrace, handler) {
+    print('${handler?.runtimeType} failed: $error');
+  },
+);
+```
 
 ### Closing the logger
 

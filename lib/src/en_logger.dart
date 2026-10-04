@@ -16,6 +16,16 @@ typedef EnLoggerLazyMessageProvider = EnLoggerLazyProvider<Object>;
 /// [EnLoggerLazyDataProvider] for [EnLoggerData].
 typedef EnLoggerLazyDataProvider = EnLoggerLazyProvider<List<EnLoggerData>>;
 
+/// Callback invoked when an error occurs while processing a log.
+///
+/// [handler] is the [EnLoggerHandler] that failed,
+/// `null` if the error occurred while resolving a lazy message or data.
+typedef EnLoggerErrorCallback = void Function(
+  Object error,
+  StackTrace stackTrace,
+  EnLoggerHandler? handler,
+);
+
 /// {@template en_logger}
 /// # EnLogger
 ///
@@ -94,12 +104,19 @@ class EnLogger {
   /// [includeCallerInfo] - If `true` `callerInfo` will be calculated
   /// and provided to handlers (not available on Web)
   ///
+  /// [onError] - Optional callback invoked when a handler or a lazy
+  /// provider throws. Errors never interrupt the logger: a failing handler
+  /// doesn't prevent the other handlers, nor the following logs, from being
+  /// written. If not provided, errors are ignored.
+  /// Shared with the instances created with [getConfiguredInstance].
+  ///
   /// {@macro en_logger}
   factory EnLogger({
     List<EnLoggerHandler>? handlers,
     PrefixFormat? defaultPrefixFormat,
     Set<Object>? zoneContextKeys,
     bool? includeCallerInfo,
+    EnLoggerErrorCallback? onError,
   }) {
     return EnLogger._(
       handlers: handlers
@@ -111,7 +128,7 @@ class EnLogger {
       defaultPrefixFormat: defaultPrefixFormat,
       prefix: null,
       zoneContextKeys: zoneContextKeys,
-      sharedState: _EnLoggerSharedState(),
+      sharedState: _EnLoggerSharedState(onError: onError),
       includeCallerInfo: includeCallerInfo,
     );
   }
@@ -937,12 +954,17 @@ class EnLogger {
       return;
     }
 
-    final handlersToWrite = _handlers.where(
-      (h) => h.can(
-        severity: data.severity,
-        prefix: data.prefix ?? _prefix,
-      ),
-    );
+    final handlersToWrite = _handlers.where((h) {
+      try {
+        return h.can(
+          severity: data.severity,
+          prefix: data.prefix ?? _prefix,
+        );
+      } catch (error, stackTrace) {
+        _reportError(error, stackTrace, h);
+        return false;
+      }
+    }).toList();
 
     if (handlersToWrite.isEmpty) {
       return;
@@ -985,21 +1007,32 @@ class EnLogger {
 
   // The write operations of the handlers are managed in a
   // separate task since attachments with unknown sizes might be present.
+  //
+  // Never completes with an error: a failure must not break the chain of
+  // the following logs.
   Future<void> _asyncWrite(
     _EnLogDataDto richData, {
     required Iterable<EnLoggerHandler> handlersToWrite,
   }) async {
-    final resolvedMessage = richData.lazyMessage != null
-        ? (await richData.lazyMessage!())
-        : richData.message;
+    final String message;
+    final List<EnLoggerData>? resolvedData;
+    try {
+      final resolvedMessage = richData.lazyMessage != null
+          ? (await richData.lazyMessage!())
+          : richData.message;
 
-    final resolvedData = richData.dataProvider != null
-        ? await richData.dataProvider!()
-        : richData.data;
+      resolvedData = richData.dataProvider != null
+          ? await richData.dataProvider!()
+          : richData.data;
+
+      message = resolvedMessage.toString();
+    } catch (error, stackTrace) {
+      _reportError(error, stackTrace, null);
+      return;
+    }
 
     final tasks = <Future<void>>[];
 
-    final message = resolvedMessage.toString();
     for (final handler in handlersToWrite) {
       FutureOr<void> futureOrWrite() async => handler.write(
             message,
@@ -1015,15 +1048,36 @@ class EnLogger {
             callerInfo: richData.callerInfo,
             isolateName: richData.isolateName,
           );
-      tasks.add(Future.sync(futureOrWrite));
+      tasks.add(
+        Future.sync(futureOrWrite).catchError(
+          (Object error, StackTrace stackTrace) =>
+              _reportError(error, stackTrace, handler),
+        ),
+      );
     }
 
     await Future.wait(tasks);
     return;
   }
+
+  void _reportError(
+    Object error,
+    StackTrace stackTrace,
+    EnLoggerHandler? handler,
+  ) {
+    try {
+      _sharedState.onError?.call(error, stackTrace, handler);
+    } catch (_) {
+      // a failing error callback must not break the logger
+    }
+  }
 }
 
 class _EnLoggerSharedState {
+  _EnLoggerSharedState({this.onError});
+
+  final EnLoggerErrorCallback? onError;
+
   Future<void> lastLogTask = Future.value();
 }
 

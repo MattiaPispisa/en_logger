@@ -1,8 +1,8 @@
 import 'dart:async';
-import 'dart:isolate';
 import 'dart:math' as math;
 
 import 'package:en_logger/en_logger.dart';
+import 'package:en_logger/src/isolate/isolate_name.dart';
 
 part '_helper.dart';
 
@@ -90,6 +90,9 @@ class EnLogger {
   ///
   /// [zoneContextKeys] - Optional set of keys to extract
   /// from the current execution zone and attach as tags to every log event.
+  ///
+  /// [includeCallerInfo] - If `true` `callerInfo` will be calculated
+  /// and provided to handlers (not available on Web)
   ///
   /// {@macro en_logger}
   factory EnLogger({
@@ -240,7 +243,7 @@ class EnLogger {
   /// [zoneContextKeys] provided here will be merged with parent logger's keys.
   ///
   /// [includeCallerInfo] - If `true` `callerInfo` will be calculated
-  /// and provided to handlers
+  /// and provided to handlers (not available on Web)
   ///
   /// ## Returns
   /// Returns a new [EnLogger] instance with the configured prefix and handlers.
@@ -959,7 +962,7 @@ class EnLogger {
       tags: tags,
       eventId: _generateUuidV4(),
       sequenceNumber: _sequenceNumber++,
-      isolateName: Isolate.current.debugName,
+      isolateName: currentIsolateName,
       callerInfo: _includeCallerInfo ? _callerInfo() : null,
     );
 

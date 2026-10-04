@@ -1528,12 +1528,17 @@ void main() {
           ),
         );
 
-        final firstTimestamp = verifications[0].captured.first as DateTime;
-        final secondTimestamp = verifications[1].captured.first as DateTime;
+        // captured order of named arguments is platform dependent
+        final firstTimestamp =
+            verifications[0].captured.whereType<DateTime>().single;
+        final secondTimestamp =
+            verifications[1].captured.whereType<DateTime>().single;
         expect(firstTimestamp.compareTo(secondTimestamp) <= 0, isTrue);
 
-        final firstSequenceNumber = verifications[0].captured[1] as int;
-        final secondSequenceNumber = verifications[1].captured[1] as int;
+        final firstSequenceNumber =
+            verifications[0].captured.whereType<int>().single;
+        final secondSequenceNumber =
+            verifications[1].captured.whereType<int>().single;
         expect(firstSequenceNumber < secondSequenceNumber, isTrue);
       });
 
@@ -1773,55 +1778,60 @@ void main() {
         expect(capturedTags['custom_tag'], equals('custom_value'));
       });
 
-      test('should callerInfo match the exact line of execution', () async {
-        registerFallbackValue(Severity.debug);
+      test(
+        'should callerInfo match the exact line of execution',
+        () async {
+          registerFallbackValue(Severity.debug);
 
-        final mockHandler = _MockHandler();
-        final completer = Completer<void>();
+          final mockHandler = _MockHandler();
+          final completer = Completer<void>();
 
-        when(
-          () => mockHandler.can(
-            severity: any(named: 'severity'),
-            prefix: any(named: 'prefix'),
-          ),
-        ).thenReturn(true);
+          when(
+            () => mockHandler.can(
+              severity: any(named: 'severity'),
+              prefix: any(named: 'prefix'),
+            ),
+          ).thenReturn(true);
 
-        EnLogger(includeCallerInfo: true)
-          ..addHandler(mockHandler)
-          ..lazyDebug(() async {
-            await completer.future;
-            return 'lazyDebug';
-          });
+          EnLogger(includeCallerInfo: true)
+            ..addHandler(mockHandler)
+            ..lazyDebug(() async {
+              await completer.future;
+              return 'lazyDebug';
+            });
 
-        await Future<void>.delayed(Duration.zero);
-        completer.complete();
-        await Future<void>.delayed(Duration.zero);
+          await Future<void>.delayed(Duration.zero);
+          completer.complete();
+          await Future<void>.delayed(Duration.zero);
 
-        final verification = verify(
-          () => mockHandler.write(
-            'lazyDebug',
-            prefix: any(named: 'prefix'),
-            severity: any(named: 'severity'),
-            stackTrace: any(named: 'stackTrace'),
-            timestamp: any(named: 'timestamp'),
-            eventId: any(named: 'eventId'),
-            sequenceNumber: any(named: 'sequenceNumber'),
-            tags: any(named: 'tags'),
-            data: any(named: 'data'),
-            error: any(named: 'error'),
-            callerInfo: captureAny(named: 'callerInfo'),
-            isolateName: any(named: 'isolateName'),
-          ),
-        )..called(1);
+          final verification = verify(
+            () => mockHandler.write(
+              'lazyDebug',
+              prefix: any(named: 'prefix'),
+              severity: any(named: 'severity'),
+              stackTrace: any(named: 'stackTrace'),
+              timestamp: any(named: 'timestamp'),
+              eventId: any(named: 'eventId'),
+              sequenceNumber: any(named: 'sequenceNumber'),
+              tags: any(named: 'tags'),
+              data: any(named: 'data'),
+              error: any(named: 'error'),
+              callerInfo: captureAny(named: 'callerInfo'),
+              isolateName: any(named: 'isolateName'),
+            ),
+          )..called(1);
 
-        final callerInfo = verification.captured.first;
-        expect(
-          callerInfo,
-          contains(
-            'en_logger/test/src/logger_test.dart:1791',
-          ),
-        );
-      });
+          final callerInfo = verification.captured.first;
+          expect(
+            callerInfo,
+            contains(
+              'en_logger/test/src/logger_test.dart:1798',
+            ),
+          );
+          // callerInfo relies on the VM stack trace format
+        },
+        testOn: 'vm',
+      );
 
       test('should callerInfo be null if disabled', () async {
         registerFallbackValue(Severity.debug);

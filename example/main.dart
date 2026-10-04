@@ -16,6 +16,9 @@ void main(List<String> args) async {
       Severity.notice: const DevLogColor.green(),
     });
 
+  // a print-based handler, useful for CLI tools, scripts, and tests
+  final printLogHandler = PrintLogHandler();
+
   // an enLogger with a default prefix format
   final logger = EnLogger(
     zoneContextKeys: {#userId},
@@ -29,6 +32,7 @@ void main(List<String> args) async {
       // sentry,
       VerbosePrintHandler(),
       devLogHandler,
+      printLogHandler,
     ])
 
     // debug log

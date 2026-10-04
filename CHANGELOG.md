@@ -1,3 +1,15 @@
+## [2.1.0] - 2026-10-04
+
+### Added
+
+- `PrintLogHandler`: a console log handler that writes with `print`. Useful for CLI tools, scripts, and tests. Shares the same color system and message filters as `DevLogHandler`.
+
+### Fixed
+
+- `EnLogger` now works on Web: `Isolate.current` is no longer accessed on platforms without `dart:isolate` (it threw `Unsupported operation: Isolate.current` on every log). `isolateName` is `null` there.
+- `DevLogHandler` now colors every line of a multi-line message, instead of only coloring the first line in consoles that render each line as a separate event (e.g. a browser's expanded console view).
+- ANSI color codes are now only emitted when the current environment is detected to support them (or when `useColors: true` is explicitly set). Previously, colors were always emitted, which could leak raw ANSI escape codes into consoles that don't interpret them.
+
 ## [2.0.0] - 2026-05-28
 
 ### Added

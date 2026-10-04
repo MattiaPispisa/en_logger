@@ -1,29 +1,18 @@
-import 'dart:async';
-
 import 'package:en_logger/en_logger.dart';
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
 
 void main() {
   group(
-    'PrinterHandler',
+    'PrintLogHandler',
     () {
       var message = '';
-      late DevLogHandler handler;
+      late PrintLogHandler handler;
 
       setUp(() {
-        handler = DevLogHandler.custom(
-          logCallback: (
-            String content, {
-            DateTime? time,
-            int? sequenceNumber,
-            int level = 0,
-            String name = '',
-            Zone? zone,
-            Object? error,
-            StackTrace? stackTrace,
-          }) {
-            message = content;
+        handler = PrintLogHandler.custom(
+          printCallback: (Object? content) {
+            message = content.toString();
           },
           prefixFormat: const PrefixFormat(
             endFormat: ']',
@@ -38,7 +27,7 @@ void main() {
         () {
           expect(
             () {
-              DevLogHandler();
+              PrintLogHandler();
             },
             returnsNormally,
           );
@@ -84,18 +73,9 @@ void main() {
       test(
         'should write message with prefix with default prefix format',
         () {
-          handler = DevLogHandler.custom(
-            logCallback: (
-              String content, {
-              DateTime? time,
-              int? sequenceNumber,
-              int level = 0,
-              String name = '',
-              Zone? zone,
-              Object? error,
-              StackTrace? stackTrace,
-            }) {
-              message = content;
+          handler = PrintLogHandler.custom(
+            printCallback: (Object? content) {
+              message = content.toString();
             },
             useColors: true,
           )..write(
@@ -166,41 +146,10 @@ void main() {
         );
       });
 
-      test(
-        'should color every line of a multi-line message '
-        'with prefix only on the first line',
-        () {
-          handler.write(
-            'line1\nline2',
-            severity: Severity.error,
-            prefix: 'Prefix',
-            timestamp: DateTime(2025),
-            eventId: 'id',
-            tags: {},
-            sequenceNumber: 0,
-          );
-
-          expect(
-            message,
-            '${const DevLogColor.red().schema}[PREFIX] line1\x1B[0m\n'
-            '${const DevLogColor.red().schema}line2\x1B[0m',
-          );
-        },
-      );
-
       test('should not emit ANSI codes when useColors is false', () {
-        handler = DevLogHandler.custom(
-          logCallback: (
-            String content, {
-            DateTime? time,
-            int? sequenceNumber,
-            int level = 0,
-            String name = '',
-            Zone? zone,
-            Object? error,
-            StackTrace? stackTrace,
-          }) {
-            message = content;
+        handler = PrintLogHandler.custom(
+          printCallback: (Object? content) {
+            message = content.toString();
           },
           prefixFormat: const PrefixFormat(endFormat: ']', startFormat: '['),
           useColors: false,
@@ -217,23 +166,11 @@ void main() {
         expect(message, '[PREFIX] line1\nline2');
       });
 
-      test('should handle an empty message', () {
+      test('should append error to the message', () {
         handler.write(
-          '',
+          'oops',
           severity: Severity.error,
-          timestamp: DateTime(2025),
-          eventId: 'id',
-          tags: {},
-          sequenceNumber: 0,
-        );
-
-        expect(message, '${const DevLogColor.red().schema}\x1B[0m');
-      });
-
-      test('should not normalize CRLF line endings', () {
-        handler.write(
-          'line1\r\nline2',
-          severity: Severity.error,
+          error: 'boom',
           timestamp: DateTime(2025),
           eventId: 'id',
           tags: {},
@@ -242,24 +179,35 @@ void main() {
 
         expect(
           message,
-          '${const DevLogColor.red().schema}line1\r\x1B[0m\n'
-          '${const DevLogColor.red().schema}line2\x1B[0m',
+          '${const DevLogColor.red().schema}oops\x1B[0m\n'
+          '${const DevLogColor.red().schema}Error: boom\x1B[0m',
+        );
+      });
+
+      test('should append the stack trace to the message', () {
+        final stackTrace = StackTrace.fromString('#0 main');
+
+        handler.write(
+          'oops',
+          severity: Severity.error,
+          stackTrace: stackTrace,
+          timestamp: DateTime(2025),
+          eventId: 'id',
+          tags: {},
+          sequenceNumber: 0,
+        );
+
+        expect(
+          message,
+          '${const DevLogColor.red().schema}oops\x1B[0m\n'
+          '${const DevLogColor.red().schema}#0 main\x1B[0m',
         );
       });
 
       test('should filter messages', () {
-        handler = DevLogHandler.custom(
-          logCallback: (
-            String content, {
-            DateTime? time,
-            int? sequenceNumber,
-            int level = 0,
-            String name = '',
-            Zone? zone,
-            Object? error,
-            StackTrace? stackTrace,
-          }) {
-            message = content;
+        handler = PrintLogHandler.custom(
+          printCallback: (Object? content) {
+            message = content.toString();
           },
           writeIfContains: ['must be present', 'can be present'],
           writeIfNotContains: ['hide', 'remove'],

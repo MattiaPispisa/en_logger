@@ -21,6 +21,7 @@ Instead of restricting you to the standard debug console, `EnLogger` acts as a c
 * **Zone:** Automatically extract contextual data (tags) from `Zone.current` and attach them to every log event.
 * **Caller info** Indicates the exact location in your source code where the log was emitted
 * **Syslog Standards:** All log operations strictly adhere to the standard syslog severity levels (Emergency, Alert, Critical, Error, Warning, Notice, Info, Debug).
+* **Web support:** Works on every Dart platform, Web included (`isolateName` and `callerInfo` are `null` on Web, and colors are disabled by default).
 * **Ready-to-use Console Logger:** Get started immediately with the included `DevLogHandler`, which outputs beautifully colored and formatted messages straight to your developer console.
 
 To see these features in action, check out the [example project](./example/main.dart).
@@ -35,8 +36,10 @@ To see these features in action, check out the [example project](./example/main.
     - [Lazy messages](#lazy-messages)
     - [Tags & Zones](#tags--zones)
     - [Caller Info](#caller-info)
+    - [Error handling](#error-handling)
     - [Closing the logger](#closing-the-logger)
     - [DevLogHandler](#devloghandler)
+    - [PrintLogHandler](#printloghandler)
     - [CustomHandler](#customhandler)
 
 
@@ -159,6 +162,22 @@ Because extracting stack traces is a CPU-intensive operation, this feature is di
 final logger = EnLogger(includeCallerInfo: true);
 ```
 
+> `callerInfo` relies on the Dart VM stack trace format, so it is not available on Web (it is always `null`).
+
+### Error handling
+
+A failing handler never stops the logger: if a handler (or a lazy message/data provider) throws, the other handlers still write the log, and the following logs are written as usual.
+
+Use `onError` to be notified of these errors (`handler` is `null` when a lazy provider failed):
+
+```dart
+final logger = EnLogger(
+  onError: (error, stackTrace, handler) {
+    print('${handler?.runtimeType} failed: $error');
+  },
+);
+```
+
 ### Closing the logger
 
 When you are done using an `EnLogger` instance, you should clean up its resources. `EnLogger` provides a graceful shutdown mechanism that safely stops accepting new logs and **waits for any pending asynchronous writes or lazy evaluations to finish** before clearing its handlers, ensuring no data is lost.
@@ -197,6 +216,29 @@ You can also create custom colors.
 
 ```dart
 DevLogColor.custom(schema: '\x1B[31m')
+```
+
+Colors are only emitted when the current environment is detected to
+support ANSI escape codes (based on `stdout.supportsAnsiEscapes`, `false`
+on Web). Use `useColors` to override this detection:
+
+```dart
+DevLogHandler(useColors: false) // never emit colors
+DevLogHandler(useColors: true) // always emit colors
+```
+
+### PrintLogHandler
+
+A console log handler that writes with `print` instead of `dart:developer`'s
+`log`. Useful in contexts where `developer.log` is not ideal, such as CLI
+tools, scripts, and tests.
+
+It shares the same color system, `writeIfContains`/`writeIfNotContains`
+filters, and `useColors` override as `DevLogHandler`.
+
+```dart
+  final printLogHandler = PrintLogHandler()
+    ..configure({Severity.notice: DevLogColor.green()});
 ```
 
 ### CustomHandler

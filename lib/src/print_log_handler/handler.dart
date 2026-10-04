@@ -1,50 +1,39 @@
-import 'dart:async';
-import 'dart:developer' as developer;
-
 import 'package:en_logger/en_logger.dart';
 import 'package:en_logger/src/ansi/ansi_support.dart';
 import 'package:en_logger/src/ansi/message_formatter.dart';
 
-export 'color.dart';
-export 'configuration.dart';
+/// PrintLogHandler print callback signature.
+typedef PrintLogCallback = void Function(Object? object);
 
-/// DevLogHandler log callback
-typedef DeveloperLogCallback = void Function(
-  String message, {
-  DateTime? time,
-  int? sequenceNumber,
-  int level,
-  String name,
-  Zone? zone,
-  Object? error,
-  StackTrace? stackTrace,
-});
-
-/// {@template dev_log_handler}
-/// # DevLogHandler
+/// {@template print_log_handler}
+/// # PrintLogHandler
 /// ## Description
 /// Concrete implementation of [EnLoggerHandler].
 ///
-/// Writes messages to the developer console using [developer.log].
+/// Writes messages to the console using [print].
 ///
-/// Supports color configuration per severity level and message filtering.
+/// Useful in contexts where `dart:developer`'s `log` is not ideal, such as
+/// CLI tools, scripts, and tests.
+///
+/// Supports color configuration per severity level and message filtering,
+/// same as [DevLogHandler].
 ///
 /// ## Example:
 /// ```dart
-/// final devLog = DevLogHandler()
+/// final printLog = PrintLogHandler()
 ///   ..configure({
 ///     Severity.notice: const DevLogColor.green(),
 ///   });
 ///
-/// final logger = EnLogger()..addHandler(devLog);
+/// final logger = EnLogger()..addHandler(printLog);
 /// logger.debug('a debug message');
 /// ```
 /// {@endtemplate}
-class DevLogHandler extends EnLoggerHandler {
-  /// {@template dev_log_handler_constructor}
+class PrintLogHandler extends EnLoggerHandler {
+  /// {@template print_log_handler_constructor}
   /// # Constructor
   /// ## Description
-  /// Creates a new [DevLogHandler] instance.
+  /// Creates a new [PrintLogHandler] instance.
   ///
   /// ## Parameters
   /// [prefixFormat] - Format for displaying message prefixes.
@@ -61,50 +50,51 @@ class DevLogHandler extends EnLoggerHandler {
   /// which auto-detects support for the current environment.
   /// {@endtemplate}
   ///
-  /// {@macro printer_handler}
-  factory DevLogHandler({
+  /// {@macro print_log_handler}
+  factory PrintLogHandler({
     PrefixFormat? prefixFormat,
     List<String>? writeIfContains,
     List<String>? writeIfNotContains,
     bool? useColors,
   }) {
-    return DevLogHandler._(
+    return PrintLogHandler._(
       prefixFormat: prefixFormat,
       writeIfContains: writeIfContains,
       writeIfNotContains: writeIfNotContains,
       useColors: useColors,
-      logCallback: developer.log,
+      // ignore: avoid_print
+      printCallback: print,
     );
   }
 
-  /// Creates a [DevLogHandler] with a custom [logCallback].
+  /// Creates a [PrintLogHandler] with a custom [printCallback].
   ///
-  /// Use this factory when you need to customize how log messages are written,
-  /// for example, to capture logs for testing or redirect them to a different
-  /// output.
-  factory DevLogHandler.custom({
-    required DeveloperLogCallback logCallback,
+  /// Use this factory when you need to customize how log messages are
+  /// written, for example, to capture logs for testing or redirect them
+  /// to a different output.
+  factory PrintLogHandler.custom({
+    required PrintLogCallback printCallback,
     PrefixFormat? prefixFormat,
     List<String>? writeIfContains,
     List<String>? writeIfNotContains,
     bool? useColors,
   }) {
-    return DevLogHandler._(
+    return PrintLogHandler._(
       prefixFormat: prefixFormat,
       writeIfContains: writeIfContains,
       writeIfNotContains: writeIfNotContains,
       useColors: useColors,
-      logCallback: logCallback,
+      printCallback: printCallback,
     );
   }
 
-  DevLogHandler._({
-    required DeveloperLogCallback logCallback,
+  PrintLogHandler._({
+    required PrintLogCallback printCallback,
     this.writeIfContains,
     this.writeIfNotContains,
     PrefixFormat? prefixFormat,
     bool? useColors,
-  })  : _logCallback = logCallback,
+  })  : _printCallback = printCallback,
         _useColors = useColors ?? supportsAnsiColors,
         super(
           prefixFormat: prefixFormat ?? const PrefixFormat.snakeSquare(),
@@ -112,7 +102,7 @@ class DevLogHandler extends EnLoggerHandler {
 
   final DevLogColorConfiguration _configuration = DevLogColorConfiguration();
 
-  final DeveloperLogCallback _logCallback;
+  final PrintLogCallback _printCallback;
 
   /// Whether ANSI color codes are emitted.
   final bool _useColors;
@@ -130,7 +120,7 @@ class DevLogHandler extends EnLoggerHandler {
   /// [writeIfContains] (AND logic).
   final List<String>? writeIfNotContains;
 
-  /// Configures dev log colors for severity levels.
+  /// Configures print log colors for severity levels.
   ///
   /// Updates the color configuration for the specified severity levels.
   /// Severity levels not in [configuration] will keep their default colors.
@@ -139,8 +129,8 @@ class DevLogHandler extends EnLoggerHandler {
   ///
   /// Example:
   /// ```dart
-  /// final devLog = DevLogHandler();
-  /// devLog.configure({
+  /// final printLog = PrintLogHandler();
+  /// printLog.configure({
   ///   Severity.informational: const DevLogColor.magenta(),
   ///   Severity.debug: const DevLogColor.custom(schema: '\x1B[38m'),
   /// });
@@ -164,12 +154,20 @@ class DevLogHandler extends EnLoggerHandler {
     String? isolateName,
     String? callerInfo,
   }) {
+    var content = message;
+    if (error != null) {
+      content = '$content\nError: $error';
+    }
+    if (stackTrace != null) {
+      content = '$content\n$stackTrace';
+    }
+
     final formattedPrefix = (prefixFormat != null && prefix != null)
         ? prefixFormat!.format(prefix)
         : null;
 
     final prettyMessage = formatConsoleMessage(
-      message: message,
+      message: content,
       colorSchema: _configuration.getColor(severity).schema,
       useColors: _useColors,
       formattedPrefix: formattedPrefix,
@@ -185,13 +183,6 @@ class DevLogHandler extends EnLoggerHandler {
       return;
     }
 
-    _logCallback(
-      prettyMessage,
-      time: timestamp,
-      sequenceNumber: sequenceNumber,
-      level: severity.level,
-      stackTrace: stackTrace,
-      error: error,
-    );
+    _printCallback(prettyMessage);
   }
 }

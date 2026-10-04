@@ -98,9 +98,11 @@ abstract class EnLoggerHandler {
   /// within the app lifecycle.
   ///
   /// [isolateName] - The name of the isolate where the log was generated.
+  /// `null` on platforms without isolates (e.g. Web).
   ///
   /// [callerInfo] - Indicates the exact location in your source code
   /// where the log was emitted.
+  /// Not available on Web (always `null`).
   /// {@macro en_logger_handler_example}
   void write(
     String message, {
